@@ -1,0 +1,802 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Nick Belzer (nickbelzer.me)
+
+* Overview
+As a newcomer to Emacs (2019-12-29) I am using this "literate
+programming" approach to my Emacs configuration as described by
+[[https://protesilaos.com/dotemacs][Prostesilaos Stavrou]]. This paradigm allows a combination of language and
+code blocks, allowing explanation and organisation. Emacs only reads the
+elisp code included.
+
+To make this setup work the original =init.el= has to contain a little
+boilerplate such that it can load in the required packages and load this
+actual file. For reference it is shown below:
+
+#+begin_example emacs-lisp
+(require 'package)
+
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+
+;; Initialise the packages, avoiding a re-initialisation.
+(unless (bound-and-true-p package--initialized)
+  (setq package-enable-at-startup nil)
+  (package-initialize))
+
+;; Make sure `use-package' is available.
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+;; Configure `use-package' prior to loading it.
+(eval-and-compile
+  (setq use-package-always-ensure nil)
+  (setq use-package-always-defer nil)
+  (setq use-package-always-demand nil)
+  (setq use-package-expand-minimally nil)
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics t))
+
+(eval-when-compile
+  (require 'use-package))
+
+(use-package vc
+  :config
+  (setq vc-follow-symlinks t)) ; Because my dotfiles are managed that way
+
+(use-package org)
+
+(let* ((conf "~/.emacs.d/emacs-init")
+       (el (concat conf ".el"))
+       (org (concat conf ".org")))
+  (if (file-exists-p el)
+      (load-file el)
+    (org-babel-load-file org)))
+#+end_example
+
+Code blocks, which include the configuration elisp code, have to be
+wrapped in =#+BEGIN_SRC= and =#+END_SRC= tags. These can be quickly
+inserted by the keyboard command =<s TAB=.
+
+** Prepare use-package
+[[https://github.com/jwiegley/use-package][use-packages]] is a tool that helps streamline the configuration of
+packages in a performance-orientated way. It allows code to be executed
+before loading (=:init=) and after loading (=:config=) and more while
+keeping the loading and configuration together.
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
+#+END_SRC
+
+** Where I run Emacs
+I run Emacs on macOS as I use a mac as my day-to-day system. Therefore
+this configuration will be optimised for running Emacs on macOS.
+
+** COPYING
+This configuration is made by me (Nick Belzer), it is designed for my
+systems. I cannot guarantee that my configuration works for you or on
+your machine. However if you are interested in some parts of this
+configuration, feel free to try it out and ask questions.
+
+*** COPYRIGHT NOTICE
+Copyright (c) 2020 Nick Belzer <me@nickbelzer.me>
+
+This file is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
+
+This file is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this file.  If not, see <http://www.gnu.org/licenses/>.
+* Keyboard Shortcuts
+One of the primary reasons for using Emacs is the configuration it
+offers compared to traditional text editors. Because of this I will make
+extensive use of this configuration to modify the keyboard shortcuts
+when I see an opportunity to improve ergonomics. I feel like this is
+extremely important for someone who spends a lot of time on a computer.
+
+** Control & Meta Rebinding
+One of the primary keys used in Emacs is =C= (control) together with the
+=M= (meta) key. I'm not a fan of using the actual control button on the
+keyboard as it requires a lot of use of the pinky finger. Therefore I remap
+this key the =CMD= (command) key which can be pressed by the stronger
+thumb. The meta key is triggered by =ESC= which is bound to my =Caps
+Lock= key using the macOS keyboard preferences. I add an additional
+trigger for the meta key on the right command for when I'm using my mac
+based keyboard.
+
+Based on these resources:
+ - [[https://nickdrozd.github.io/2019/12/28/emacs-mac-mods.html][Modified Emacs Mac Modifiers]]
+ - [[https://www.reddit.com/r/emacs/comments/91qz7l/mac_emacs_and_hyper_key/][Reddit Discussion on Hyper key]]
+
+#+BEGIN_SRC emacs-lisp
+  (when (eq system-type 'darwin)
+    (setq ns-command-modifier 'control 
+          ns-option-modifier 'meta
+          ns-right-command-modifier 'meta))
+#+END_SRC
+
+** Default keys
+Binding =C= to my command key does clash with some default macOS
+commands like cut, paste or undo. So these need new bindings. 
+
+*** Kill region or line
+I rebind the =C-k= shortcut to either kill-line if nothing is selected
+or kill-region if I made a selection before. This makes the kill command
+'smart' as it will take it's context in to account. The same applies for
+using =M-k= which will not delete but copy the selected region or line.
+
+#+BEGIN_SRC emacs-lisp
+  (defun nbelzer/kill-region-or-line ()
+    "Kills the current region if selected, else kills the current line"
+    (interactive)
+    (if (region-active-p)
+        (progn
+          (kill-region (region-beginning) (region-end))
+          (message "Killed region"))
+        (progn
+          (kill-line)
+          (message "Killed line"))))
+
+  (defun nbelzer/copy-region-or-line ()
+    "Copies the current region if selected, else copies the current line"
+    (interactive)
+    (if (region-active-p)
+        (progn
+          (kill-ring-save (region-beginning) (region-end))
+          (message "Copied region"))
+      (progn
+        (kill-ring-save (line-beginning-position) (line-end-position))
+        (message "Copied line"))))
+
+  (use-package emacs
+    :bind (("C-k" . nbelzer/kill-region-or-line)
+           ("M-k" . nbelzer/copy-region-or-line)))
+#+END_SRC
+
+*** Marking
+Since marking by default is set to =C-SPC= we have a conflict in macOS
+with the default spotlight (or Alfred) binding which I use to start
+apps. So to enable marking again I use =M-SPC= instead.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :bind (("M-SPC" . set-mark-command)))
+#+END_SRC
+
+*** Copy & Paste
+Killing and yanking works together with the macOS clipboard. If I want
+to copy some text into Emacs I can simply copy it and use =C-y= to yank
+it into Emacs. When killing or copying a region/line in Emacs it
+automatically becomes available in macOS to be used outside of Emacs.
+
+As mentioned above I set up =C-k= to kill and =M-k= to save to the kill
+ring (kill without removing the selection). No special setup is required
+to set this up further.
+
+*** Buffer Navigation
+To navigate within a buffer I use the default keybindings provided by
+Emacs: =C-p=, =C-n=, =C-f= and =C-b= for single characters, =M-f= and
+=M-b= for jumping across words.
+
+To be able to jump through =camelCase= words when programming I enable
+=subword-mode=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package subword
+    :hook (prog-mode-hook . subword-mode)) 
+#+END_SRC
+
+*** Window Navigation
+To easily navigate between different buffers I've set up some keyboard
+shortcuts.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package window
+    :bind (("C-;" . next-buffer)
+           ("C-." . previous-buffer)
+           ("C-o" . other-window)))
+#+END_SRC
+
+** Which-key
+[[https://github.com/justbur/emacs-which-key][which-key]] provides hints for which keys can be pressed given a certain
+timeout. This seems like a package that will help me explore more
+keybindings as a beginner.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :config
+    ; Enable which-key mode, which by default uses the window-bottom
+    ; option
+    (which-key-mode 1))
+#+END_SRC
+** Evil mode
+As I was having some trouble with the default Emacs keybindings I wanted to try evil mode (simulating the Vim keybindings).
+#+BEGIN_SRC emacs-lisp
+;(use-package evil
+;  :ensure t
+;  :config (evil-mode 1))
+#+END_SRC
+* Emacs configuration
+** Window
+*** Disable GUI components
+As described in the 'Where I run Emacs' session I use the GUI version of
+Emacs that comes in it's own window. However I prefer not to use any of
+the default gui elements that come with it. Therefore these I disable
+elements such as: =use-file-dialog=, =menu-bar-mode=, and
+=scroll-bar-mode=.
+
+ + The default startup screen is disabled since it loses its
+   usefulness once you get familiar with the basics.
+ + The frame title is set to the buffer name.
+ + The initial scratch message is set to an empty message.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :custom
+  ; Disable the default OS file picker.
+  (use-file-dialog nil)
+  ; Disable the default OS dialog for questions.
+  (use-dialog-box nil)
+  ; Disable the default splash screen.
+  (inhibit-splash-screen t)
+  ; Disable the startup screen.
+  (inhibit-startup-screen t)
+  ; Make sure the *scratch* buffer is blank.
+  (initial-scratch-message "")
+  :config
+  ; Set fringe mode to left-only.
+  (fringe-mode '(0 . 0))
+  ; Disable the menu-bar.
+  (menu-bar-mode -1)
+  ; Disable to the tool-bar.
+  (tool-bar-mode -1)
+  ; Disable scroll bars.
+  (scroll-bar-mode -1)
+  ; Set the frame-title to the buffer name.
+  (setq-default frame-title-format '(""))
+  ; Make the titlebar transparent.
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t)))
+#+END_SRC
+
+*** Window transform
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :config
+  ; Set default window height to 50.
+  (add-to-list 'default-frame-alist '(height . 50))
+  (add-to-list 'default-frame-alist '(width . 180)))
+#+END_SRC
+*** Tab Bar
+The tab bar (Emacs 27+) allows the different workspace layouts per tab. This is quite useful. However the native tab bar is currently not enabled on macOS.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :custom
+  ; Always hide the Tab Bar (as it is not enabled for macOS).
+  (tab-bar-show nil))
+#+END_SRC
+
+I set up a custom keymap, given the prefix =C-,= for navigation of tabs and buffers. There is no explicit reason for the use of this prefix.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :config
+  (define-prefix-command (make-symbol "C-,"))
+  :bind (("C-, t" . tab-bar-switch-to-tab)
+         ("C-, b" . switch-to-buffer)))
+#+END_SRC
+
+** Typeface
+*** Font
+I use the Jetbrains Mono font as a default for Emacs. Default size of 14
+as I prefer my font to be a bit bigger. 
+
+Next to this I am using a custom font for =variable-pitch= as this
+allows me to have a normal spaced font for text in org mode
+buffers. This is based on [[https://www.youtube.com/watch?v=Oiu3LFK_rX8][this video from protesilaos]]. To make this work
+correctly with inline code the font sizes should be tested an relatively
+similar. It is possible that the behaviour does not work withh your
+theme. If you are encountering issues try using the modus themes from
+protesilaos.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :ensure t
+  :custom
+  (x-underline-at-descent-line t)
+  (underline-minimum-offset 1)
+  (line-spacing 0)
+  :config
+  (set-face-attribute 'default nil :font "Jetbrains Mono-14")
+  (set-face-attribute 'fixed-pitch nil :font "Jetbrains Mono-14")
+  (set-face-attribute 'variable-pitch nil :font "SF Pro Text-15")
+  ; Enable variable pitch mode in org and markdown buffers.
+  :hook ((org-mode . variable-pitch-mode)
+         (markdown-mode . variable-pitch-mode)))
+#+END_SRC
+
+*** Parentheses
+Highlight paratheses with no delay.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :ensure t
+  :custom
+  (show-paren-delay 0)
+  (show-paren-mode 1))
+#+END_SRC
+
+*** Theme
+I use the [[https://gitlab.com/protesilaos/modus-themes][modus-themes]] from Protesilaos Stavrou for their compatibility
+and great accessibility. By default I load the light theme.
+
+#+BEGIN_SRC emacs-lisp
+(use-package modus-vivendi-theme
+  :ensure t)
+
+(use-package modus-operandi-theme
+  :ensure t
+  :config
+  (load-theme 'modus-operandi t))
+#+END_SRC
+
+** Indentation
+By default I like a tab width of 4 as it matches the default in most
+editors. This makes the appearence of text and code similar.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :init
+    ; First try to indent the current line, then use tab to complete at
+    ; point.
+    (setq-default tab-always-indent 'complete)
+    (setq-default tab-width 4)
+    ; Use spaces over tabs.
+    (setq-default indent-tabs-mode nil))
+#+END_SRC
+
+** Line length
+Based on personal preference I like a small line length. In Emacs I
+typically prefer a column count of 72.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :custom
+    (fill-column 72)
+    ; When we fill paragraph we want the command to take into account
+    ; sentences (which end with a period).
+    (sentence-end-without-period nil)
+    :config
+    ; Show the column number in the mode line.
+    (column-number-mode))
+#+END_SRC
+
+In plain text mode I setup Emacs to automatically format fill
+paragraphs. 
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :config
+    (setq adaptive-fill-mode t)
+    :hook (text-mode-hook . (lambda () 
+                              (turn-on-auto-fill))))
+#+END_SRC
+
+** Delete trailing spaces
+Trailing whitespace should automatically be removed before saving.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :hook (before-safe-hook . delete-trailing-whitespace))
+#+END_SRC
+
+** Scrolling Behaviour
+I want Emacs to help me keep focus of the cursor when scrolling.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :custom
+    ; Preserve the screen position as much as possible during scrolling.
+    (scroll-preserve-screen-position t)
+    ; Keep a margin of 4 lines at the bottom when scrolling.
+    (scroll-margin 4))
+#+END_SRC
+
+** Backups
+As outlined by [[https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files][ymf3 in this stackoverflow thread]] Emacs backups are
+great, however it is not so great when they are in the way or clutter
+your working directories. This can be resolved by setting a custom
+folder for your backups.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :custom
+    (backup-directory-alist `(("." . "~/.emacs.backups")))
+    (backup-by-copying t)
+    (delete-old-versions t)
+    (kept-new-versions 6)
+    (kept-old-versions 2)
+    (version-control t))
+#+END_SRC
+* macOS Specific
+** Fix folder access
+When using the default Emacs cask from brew on macOS 11 I ran in to some
+problems with respect to accessing iCloud folders. The issue could not
+be fixed by applying the "Full Disk Access" permission in the Security &
+Preferences panel in System Prefences. This is related the installed
+Emacs version being a script that checks the architecture of the machine
+and runs the appropriate binary. Because of this we either need to give
+the permission to the correct binary or update the =.app= such that it
+directly opens the binary as explained in this article: [[https://spin.atomicobject.com/2019/12/12/fixing-emacs-macos-catalina/][Fixing Emacs
+after an Upgrade]]. 
+
+#+BEGIN_SRC bash
+  # Since MacOS Catalina the binary that is likely to launch (at least on
+  # my machine) is located in the Emacs-x86_64-10_14/ folder. This could
+  # be different on a new machine (perhaps running Apple Silicon).
+
+  # First step is actually make that binary the one that is started.
+  cd /Applications/Emacs.app/Contents/MacOS
+  mv Emacs Emacs-launcher
+  mv Emacs-x86_64-10_14 Emacs
+
+  # As we changed the binary that is launched the code signature is no
+  # longer valid. Therefore we should remove it.
+  rm -rf /Applications/Emacs.app/Contents/_CodeSignature
+#+END_SRC
+
+** Fix $PATH
+By default the PATH variable used in Emacs does not reflect the one used
+in the terminal. This is fixed by the [[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]] package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :init
+    (exec-path-from-shell-initialize))
+#+END_SRC
+* Ivy, Counsel, Prescient and Ivy-rich
+[[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for emacs, I use it to enhance the
+minibuffer experience. Counsel is used to remap default built-in Emacs
+functions to ones that are customized with more keybindings. Prescient
+is used keep track of frequently used items present lists in ivy based
+on this. Ivy-rich enhances some of the ivy-counsel menus with more
+information in the otherwise empty space.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :ensure t
+    :custom
+    ; Show recently used files in switch buffer
+    (ivy-use-virtual-buffers t)
+    (ivy-display-style 'fancy)
+    :config
+    (ivy-mode 1))
+
+  (use-package counsel
+    :ensure t
+    :after ivy)
+
+  (use-package prescient
+    :ensure t
+    :custom
+    (prescient-history-length 50)
+    (prescient-save-file "~/.emacs.d/prescient-items")
+    (prescient-filter-method '(fuzzy initialism regexp))
+    :config
+    (prescient-persist-mode 1))
+
+  (use-package ivy-prescient
+    :ensure t
+    :after (prescient ivy)
+    :custom
+    (ivy-prescient-enable-filtering t)
+    (ivy-prescient-enable-sorting t)
+    :config
+    (ivy-prescient-mode 1))
+
+  (use-package ivy-rich
+    :ensure t
+    :after ivy
+    :config
+    (ivy-rich-mode 1))
+#+END_SRC
+*
+* Programming
+** Linting
+*** Flycheck
+[[https://flycheck.org][Flycheck]] is used for syntax checking with support for many different
+programming languages out of the box.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t
+    :custom
+    ; Check syntax on save.
+    (flycheck-check-syntax-automatically '(save mode-enabled)))
+  
+  (use-package flycheck-indicator
+    ; Show flycheck messages on the modeline.
+    :ensure t
+    :after flycheck
+    :hook (flycheck-mode-hook . flycheck-indicator-mode))
+
+  (use-package flycheck-posframe
+    ; Show flycheck messages as small popup.
+    :ensure t
+    :after flycheck
+    :hook (flycheck-mode-hook . flycheck-posframe-mode))
+#+END_SRC
+
+** Programming mode
+Some defaults I like to apply in programming mode:
++  Show line numbers in a prettified format.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :custom
+    (linum-format "%3d ")
+    :hook (prog-mode . display-line-numbers-mode))
+#+END_SRC
+
+** Language Server Protocol (LSP)
+The language server protocol opens Emacs up to simple code comprehension
+and autocomplete features such as:
+ + Clever autocomplete (based on types)
+ + Find references/definitions
+ + Clever renaming
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :custom
+    ; Set flycheck as the default diagnostic package.
+    (lsp-diagnostic-package :flycheck)
+    ; Make sure that we always call lsp-deferred to avoid long periods of
+    ; unresponsiveness.
+    :commands (lsp lsp-deferred))
+#+END_SRC
+
+*** Python
+Python can work using the =pyls= which needs to be installed using
+pip. By default we start lsp when opening python mode.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :hook (python-mode-hook . lsp))
+#+END_SRC
+
+Python uses a global environment but can also be configured using
+virtual environments. Using =pyvenv= I can tap in to the right
+virtualenv for each project such that lsp mode understands the packages
+that I have installed.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pyvenv
+    :ensure t)
+#+END_SRC
+
+*** Swift
+LSP mode for Swift uses the sourcekit-lsp by Apple, this comes installed
+with XCode.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-sourcekit
+    :ensure t)
+  (use-package swift-mode
+    :ensure t
+    :hook (swift-mode-hook . lsp))
+#+END_SRC
+*** Golang
+Golang uses [[https://github.com/golang/tools/tree/master/gopls][gopls]] which has some recommendations for the [[https://github.com/golang/tools/blob/master/gopls/doc/emacs.md][Emacs setup]].
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :hook (go-mode . lsp-deferred))
+
+  ;; Set up before-save hooks to format buffer and add/delete imports.
+  ;; Make sure you don't have other gofmt/goimports hooks enabled.
+  (defun lsp-go-install-save-hooks ()
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t))
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+#+END_SRC
+
+** Git
+As my git client I use the amazing magit.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :custom
+    ; Show fine differences for the current diff hunk only, used to
+    ; minimize space used on screen.
+    (magit-diff-refine-hunk t)
+    :bind (("C-c g" . magit-status)))
+#+END_SRC
+
+** Zen mode
+I prefer to have a simplified mode where the content on my screen is in
+focus.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package olivetti
+    :ensure 
+    :defer
+    :diminish
+    :config
+    (setq olivetti-body-width 80)
+    (setq olivetti-minimum-body-width 80)
+    (setq olivetti-recal-visual-line-mode-entry-state t)
+    (define-minor-mode nbelzer/zen-mode
+      "Toggle zen-mode in the current buffer."
+      :init-value nil
+      :global nil
+      (if nbelzer/zen-mode
+          (progn
+            (olivetti-mode 1)
+            (message "Enabled Zen Mode"))          
+        (progn
+          (delete-other-windows)
+          (olivetti-mode -1)
+          (message "Disabled Zen Mode"))))
+    :bind ("C-c z" . nbelzer/zen-mode))
+#+END_SRC
+** Racket
+I use the racket language for going through SICP.
+
+#+BEGIN_SRC emacs-lisp
+; Allows emacs to find our ob-racket.el file.
+(add-to-list 'load-path "~/.emacs.d/lisp")
+
+; Racket-mode enables highlighting
+(use-package racket-mode
+  :after org
+  :pin manual
+  :config
+  ; Add racket and scribble to the enabled org-babel languages.
+  (append '((racket . t) (scribble . t)) org-babel-load-languages))
+#+END_SRC
+* Org mode
+** Content
+In org mode I prefer my content to be centered using =olivetti-mode= by
+default.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :hook (org-mode . olivetti-mode))
+;  :bind (:map org-mode-map
+;         ("C-, b" . nil)))
+#+END_SRC
+
+** Headers
+To make my headers stand out from the default =* Header1= or =** Header
+2= I use =org-superstar=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-superstar
+  :ensure
+  :after org
+  :defer
+  :custom
+  (org-superstar-remove-leading-stars t)
+;  (setq org-superstar-headline-bullets-list
+;        '("" "◉" "○" "▷"))
+  (org-superstar-item-bullet-alist
+        '((?+ . ?•)
+          (?* . ?➤)
+          (?- . ?-)))
+  :hook (org-mode . org-superstar-mode))
+#+END_SRC
+
+** Indentation
+As some headers can go very deep I am not a big fan of the default
+indentation that increases for each level of header.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :custom
+  (org-apapt-indentation nil)
+  (org-indent-indentation-per-level 0))
+#+END_SRC
+
+** Markup
+Just like with links I think we can hide the emphasis markers like =/=
+or =*= when marking up text to be italic or bold. 
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :custom
+  (org-hide-emphasis-markers t))
+#+END_SRC
+
+** Source code blocks
+By default org mode seems to require indentation in src code blocks, I
+don't think this is neccesary so  I disabled it.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-src
+  :after org
+  :custom
+  (org-src-preserve-indentation t)
+  (org-edit-src-content-indentation 0))
+#+END_SRC
+
+* Markdown-mode
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :hook (markdown-mode . olivetti-mode))
+#+END_SRC
+
+* Spelling
+Spell checking is one of the great things that computers can help us
+with, whether accidental or not the computer should help us out and
+point us to possible errors.
+
+There seem to be two main back-ends used for spell checking, Aspell and Hunspell. At the time of writing (July 2020) Aspell last release was =0.60.8= (13 Oct 2019) while Hunspell's latest release was =1.7.0= (12 Nov 2018). For now I've chosen to use =aspell=.
+
+By installing =aspell= using =brew install aspell= we gain some nice
+auto-correct features using the default =ispell-mode=. However I want to
+this behaviour:
++ The spell checking should happen in the background, only requiring my
+  attention when something is misspelled.
++ The way it should ask for my attention is by highlighting the word
+  (perhaps in red).
++ It should be activated by default in text buffers such as =org-mode=,
+  =markdown= and git commits.
+
+*Example*: misspeled word
+Try correcting the word with =M-$= which calls =ispell-word=.
+
+#+BEGIN_SRC emacs-lisp
+; Ispell uses the aspell backend.
+(use-package ispell
+  :custom 
+  (ispell-program-name "aspell")
+  ; Increase suggestion speed.
+  (ispell-extra-args '("--sug-mode=ultra")))
+
+; Flyspell highlights incorrect words on change
+(use-package flyspell
+  :hook (text-mode . flyspell-mode)
+  :bind (("C-$" . flyspell-buffer)
+         :map flyspell-mode-map
+         ("C-;" . nil)
+         ("C-," . nil)
+         ("C-." . nil)))
+#+END_SRC
+* Custom functions
+Here I define custom functions that are not related to some specific
+functionality. These functions are prefixed with =nbelzer/=.
+
+#+BEGIN_SRC emacs-lisp
+(defun nbelzer/enable-light-theme ()
+  "Enables my preferred light theme."
+  (interactive)
+  (load-theme 'modus-operandi t))
+
+(defun nbelzer/enable-dark-theme ()
+  "Enables my preferred dark theme."
+  (interactive)
+  (load-theme 'modus-vivendi t))
+
+(defun nbelzer/open-emacs-config ()
+  "Opens my emacs configuration file."
+  (interactive)
+  (find-file "~/.emacs.d/emacs-init.org"))
+
+(defun nbelzer/reload-emacs-config ()
+  "Reloads the emacs configuration."
+  (interactive)
+  (load-file "~/.emacs.d/init.el"))
+#+END_SRC

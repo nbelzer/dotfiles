@@ -1,0 +1,7 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Nick Belzer
+	email = me@nickbelzer.me
+[core]
+	editor = nano
+	excludesfile = ~/.gitignore_global

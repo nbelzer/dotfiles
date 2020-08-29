@@ -1,0 +1,21 @@
+- defaults:
+    link:
+      relink: true
+
+- clean: ['~']
+
+- link:
+    ~/.emacs.d/early-init.el:
+        create: true
+        path: emacs.d/early-init.el
+    ~/.emacs.d/init.el:
+        create: true
+        path: emacs.d/init.el
+    ~/.emacs.d/emacs-init.org:
+        create: true
+        path: emacs.d/emacs-init.org
+    ~/.gitignore_global: git/.gitignore_global
+    ~/.gitconfig: git/.gitconfig
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
