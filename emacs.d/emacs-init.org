@@ -739,6 +739,17 @@ don't think this is neccesary so  I disabled it.
   (org-edit-src-content-indentation 0))
 #+END_SRC
 
+** Latex
+To support latex code we need to install both Latex and dvipng. Both can be done through the following commands on macOS.
+
+#+BEGIN_SRC bash
+brew cask install basictex
+sudo tlmgr update --self
+sudo tlmgr install dvisvgm
+#+END_SRC
+
+Based on [[https://madcoda.com/2014/04/getting-started-with-texlatex-on-maclinux/][this]] blog post. Math snippets [[https://orgmode.org/manual/LaTeX-math-snippets.html][can then be enabled by]] including =#+OPTIONS: tex:dvisvgm= to the org file.
+
 * Markdown-mode
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
