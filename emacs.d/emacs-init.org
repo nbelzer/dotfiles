@@ -661,7 +661,8 @@ focus.
     :bind ("C-c z" . nbelzer/zen-mode))
 #+END_SRC
 ** Racket
-I use the racket language for going through SICP.
+I use the racket language for going through SICP. Set it up according to
+[[https://github.com/DEADB17/ob-racket][this]] repository. I use [[https://www.racket-mode.com/#Install-Racket-Mode][racket-mode]] as major mode for editing racket files.
 
 #+BEGIN_SRC emacs-lisp
 ; Allows emacs to find our ob-racket.el file.
