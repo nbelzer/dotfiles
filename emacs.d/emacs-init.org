@@ -608,8 +608,12 @@ with XCode.
 Golang uses [[https://github.com/golang/tools/tree/master/gopls][gopls]] which has some recommendations for the [[https://github.com/golang/tools/blob/master/gopls/doc/emacs.md][Emacs setup]].
 
 #+BEGIN_SRC emacs-lisp
+  (use-package go-mode
+    :ensure t)
+
   (use-package lsp-mode
     :ensure t
+    :after go-mode
     :hook (go-mode . lsp-deferred))
 
   ;; Set up before-save hooks to format buffer and add/delete imports.
