@@ -299,7 +299,7 @@ I set up a custom keymap, given the prefix =C-,= for navigation of tabs and buff
 
 ** Typeface
 *** Font
-I use the Jetbrains Mono font as a default for Emacs. Default size of 14
+I use the Jetbrains Mono font as a default for Emacs. Default size of 16
 as I prefer my font to be a bit bigger. 
 
 Next to this I am using a custom font for =variable-pitch= as this
@@ -316,14 +316,15 @@ protesilaos.
   :custom
   (x-underline-at-descent-line t)
   (underline-minimum-offset 1)
-  (line-spacing 0)
+   ; Use a slightly more relaxed line height to ease display.
+  (line-spacing 0.2)
   :config
-  (set-face-attribute 'default nil :font "Jetbrains Mono-14")
-  (set-face-attribute 'fixed-pitch nil :font "Jetbrains Mono-14")
-  (set-face-attribute 'variable-pitch nil :font "SF Pro Text-15")
+  (set-face-attribute 'default nil :font "Jetbrains Mono-15")
+  (set-face-attribute 'fixed-pitch nil :font "Jetbrains Mono-15")
+  (set-face-attribute 'variable-pitch nil :font "SF Pro Text-16")
   ; Enable variable pitch mode in org and markdown buffers.
-  :hook ((org-mode . variable-pitch-mode)
-         (markdown-mode . variable-pitch-mode)))
+  :hook ((org-mode-hook . variable-pitch-mode)
+         (markdown-mode-hook . variable-pitch-mode)))
 #+END_SRC
 
 *** Parentheses
@@ -404,12 +405,12 @@ Trailing whitespace should automatically be removed before saving.
 I want Emacs to help me keep focus of the cursor when scrolling.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :custom
-    ; Preserve the screen position as much as possible during scrolling.
-    (scroll-preserve-screen-position t)
-    ; Keep a margin of 4 lines at the bottom when scrolling.
-    (scroll-margin 4))
+(use-package emacs
+  :custom
+  ; Preserve the screen position as much as possible during scrolling.
+  (scroll-preserve-screen-position t)
+  ; Keep a margin of 2 lines at the bottom when scrolling.
+  (scroll-margin 2))
 #+END_SRC
 
 ** Backups
