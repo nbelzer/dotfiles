@@ -20,7 +20,8 @@
   (setq use-package-always-demand nil)
   (setq use-package-expand-minimally nil)
   (setq use-package-enable-imenu-support t)
-  (setq use-package-compute-statistics t))
+  (setq use-package-compute-statistics t)
+  (setq use-package-hook-name-suffix nil))
 
 (eval-when-compile
   (require 'use-package))

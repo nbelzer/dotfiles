@@ -1,6 +1,5 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Nick Belzer (nickbelzer.me)
-
 * Overview
 As a newcomer to Emacs (2019-12-29) I am using this "literate
 programming" approach to my Emacs configuration as described by
@@ -35,7 +34,8 @@ actual file. For reference it is shown below:
   (setq use-package-always-demand nil)
   (setq use-package-expand-minimally nil)
   (setq use-package-enable-imenu-support t)
-  (setq use-package-compute-statistics t))
+  (setq use-package-compute-statistics t)
+  (setq use-package-hook-name-suffix nil))
 
 (eval-when-compile
   (require 'use-package))
@@ -72,6 +72,26 @@ keeping the loading and configuration together.
   (require 'use-package))
 #+END_SRC
 
+** Rebuild init and refresh package cache
+Derided from the dotemacs from [[https://protesilaos.com/dotemacs/#h:b343378b-d3ec-4c90-8117-6cf92abee45b][Protesilaos]] I like to rebuild my init file on Emacs exit, together with refreshing the package cache.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :config
+  (defun prot/rebuild-emacs-init ()
+    "Produce Elisp init from my Org dotemacs.
+Add this to `kill-emacs-hook', to use the newest file in the next
+session.  The idea is to reduce startup time, though just by
+rolling it over to the end of a session rather than the beginning
+of it."
+    (let ((init-el "~/.emacs.d/emacs-init.el")
+          (init-org "~/.emacs.d/emacs-init.org"))
+      (when init-el
+        (delete-file init-el))
+      (org-babel-tangle-file init-org init-el)))
+  :hook ((kill-emacs-hook . prot/rebuild-emacs-init)
+         (kill-emacs-hook . package-quickstart-refresh)))
+#+END_SRC
 ** Where I run Emacs
 I run Emacs on macOS as I use a mac as my day-to-day system. Therefore
 this configuration will be optimised for running Emacs on macOS.
@@ -554,7 +574,7 @@ Some defaults I like to apply in programming mode:
   (use-package emacs
     :custom
     (linum-format "%3d ")
-    :hook (prog-mode . display-line-numbers-mode))
+    :hook (prog-mode-hook . display-line-numbers-mode))
 #+END_SRC
 
 ** Language Server Protocol (LSP)
@@ -615,7 +635,7 @@ Golang uses [[https://github.com/golang/tools/tree/master/gopls][gopls]] which h
   (use-package lsp-mode
     :ensure t
     :after go-mode
-    :hook (go-mode . lsp-deferred))
+    :hook (go-mode-hook . lsp-deferred))
 
   ;; Set up before-save hooks to format buffer and add/delete imports.
   ;; Make sure you don't have other gofmt/goimports hooks enabled.
@@ -648,8 +668,8 @@ focus.
     :defer
     :diminish
     :config
-    (setq olivetti-body-width 80)
-    (setq olivetti-minimum-body-width 80)
+    (setq olivetti-body-width 100)
+    ;(setq olivetti-minimum-body-width 80)
     (setq olivetti-recal-visual-line-mode-entry-state t)
     (define-minor-mode nbelzer/zen-mode
       "Toggle zen-mode in the current buffer."
@@ -688,7 +708,7 @@ default.
 
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
-  :hook (org-mode . olivetti-mode))
+  :hook (org-mode-hook . olivetti-mode))
 ;  :bind (:map org-mode-map
 ;         ("C-, b" . nil)))
 #+END_SRC
@@ -710,7 +730,7 @@ To make my headers stand out from the default =* Header1= or =** Header
         '((?+ . ?•)
           (?* . ?➤)
           (?- . ?-)))
-  :hook (org-mode . org-superstar-mode))
+  :hook (org-mode-hook . org-superstar-mode))
 #+END_SRC
 
 ** Indentation
@@ -759,7 +779,7 @@ Based on [[https://madcoda.com/2014/04/getting-started-with-texlatex-on-maclinux
 * Markdown-mode
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
-  :hook (markdown-mode . olivetti-mode))
+  :hook (markdown-mode-hook . olivetti-mode))
 #+END_SRC
 
 * Spelling
@@ -792,7 +812,7 @@ Try correcting the word with =M-$= which calls =ispell-word=.
 
 ; Flyspell highlights incorrect words on change
 (use-package flyspell
-  :hook (text-mode . flyspell-mode)
+  :hook (text-mode-hook . flyspell-mode)
   :bind (("C-$" . flyspell-buffer)
          :map flyspell-mode-map
          ("C-;" . nil)
