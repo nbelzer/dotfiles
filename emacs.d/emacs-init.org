@@ -355,6 +355,9 @@ Highlight paratheses with no delay.
   :ensure t
   :custom
   (show-paren-delay 0)
+  (show-paren-style 'mixed)
+  (show-paren-ring-bell-on-mismatch t)
+  :config
   (show-paren-mode 1))
 #+END_SRC
 
