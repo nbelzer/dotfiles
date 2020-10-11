@@ -461,20 +461,20 @@ the permission to the correct binary or update the =.app= such that it
 directly opens the binary as explained in this article: [[https://spin.atomicobject.com/2019/12/12/fixing-emacs-macos-catalina/][Fixing Emacs
 after an Upgrade]]. 
 
-#+BEGIN_SRC bash
-  # Since MacOS Catalina the binary that is likely to launch (at least on
-  # my machine) is located in the Emacs-x86_64-10_14/ folder. This could
-  # be different on a new machine (perhaps running Apple Silicon).
+#+BEGIN_EXAMPLE bash
+# Since MacOS Catalina the binary that is likely to launch (at least on
+# my machine) is located in the Emacs-x86_64-10_14/ folder. This could
+# be different on a new machine (perhaps running Apple Silicon).
 
-  # First step is actually make that binary the one that is started.
-  cd /Applications/Emacs.app/Contents/MacOS
-  mv Emacs Emacs-launcher
-  mv Emacs-x86_64-10_14 Emacs
+# First step is actually make that binary the one that is started.
+cd /Applications/Emacs.app/Contents/MacOS
+mv Emacs Emacs-launcher
+mv Emacs-x86_64-10_14 Emacs
 
-  # As we changed the binary that is launched the code signature is no
-  # longer valid. Therefore we should remove it.
-  rm -rf /Applications/Emacs.app/Contents/_CodeSignature
-#+END_SRC
+# As we changed the binary that is launched the code signature is no
+# longer valid. Therefore we should remove it.
+rm -rf /Applications/Emacs.app/Contents/_CodeSignature
+#+END_EXAMPLE
 
 ** Fix $PATH
 By default the PATH variable used in Emacs does not reflect the one used
