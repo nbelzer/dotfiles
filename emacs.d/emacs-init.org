@@ -763,6 +763,18 @@ or =*= when marking up text to be italic or bold.
   (org-hide-emphasis-markers t))
 #+END_SRC
 
+** Images
+By default images are shown in their original width, this is most likely
+too wide. Therefore we can use the =#+ATTR_ORG: :width 250px= attribute
+above each image. This however only works if we set the
+=org-image-actual-with= variable to =nil=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :custom
+  (org-image-actual-width nil))
+#+END_SRC
+
 ** Source code blocks
 By default org mode seems to require indentation in src code blocks, I
 don't think this is neccesary so  I disabled it.
@@ -778,13 +790,20 @@ don't think this is neccesary so  I disabled it.
 ** Latex
 To support latex code we need to install both Latex and dvipng. Both can be done through the following commands on macOS.
 
-#+BEGIN_SRC bash
+#+BEGIN_EXAMPLE bash
 brew cask install basictex
 sudo tlmgr update --self
 sudo tlmgr install dvisvgm
-#+END_SRC
+#+END_EXAMPLE
 
-Based on [[https://madcoda.com/2014/04/getting-started-with-texlatex-on-maclinux/][this]] blog post. Math snippets [[https://orgmode.org/manual/LaTeX-math-snippets.html][can then be enabled by]] including =#+OPTIONS: tex:dvisvgm= to the org file.
+Based on [[https://madcoda.com/2014/04/getting-started-with-texlatex-on-maclinux/][this]] blog post. Math snippets [[https://orgmode.org/manual/LaTeX-math-snippets.html][can then be enabled by]] including
+=#+OPTIONS: tex:dvisvgm= to the org file.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :custom
+  (org-latex-create-formula-image-program 'dvisvgm))
+#+END_SRC
 
 * Markdown-mode
 #+BEGIN_SRC emacs-lisp
