@@ -704,6 +704,13 @@ I use the racket language for going through SICP. Set it up according to
   ; Add racket and scribble to the enabled org-babel languages.
   (append '((racket . t) (scribble . t)) org-babel-load-languages))
 #+END_SRC
+
+** GraphQL
+#+BEGIN_SRC emacs-lisp
+(use-package graphql-mode
+  :mode "\\.gql\\'")
+#+END_SRC
+
 * Org mode
 ** Content
 In org mode I prefer my content to be centered using =olivetti-mode= by
