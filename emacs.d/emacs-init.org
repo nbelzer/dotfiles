@@ -772,7 +772,8 @@ above each image. This however only works if we set the
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
   :custom
-  (org-image-actual-width nil))
+  (org-image-actual-width nil)
+  (org-startup-with-inline-images t))
 #+END_SRC
 
 ** Source code blocks
@@ -802,6 +803,7 @@ Based on [[https://madcoda.com/2014/04/getting-started-with-texlatex-on-maclinux
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :custom
+  (org-startup-with-latex-preview t)
   (org-latex-create-formula-image-program 'dvisvgm))
 #+END_SRC
 
