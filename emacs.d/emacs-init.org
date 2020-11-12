@@ -758,9 +758,9 @@ default.
 
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
-  :hook (org-mode-hook . olivetti-mode))
-;  :bind (:map org-mode-map
-;         ("C-, b" . nil)))
+  :hook (org-mode-hook . olivetti-mode)
+  :custom
+  (org-startup-folded t))
 #+END_SRC
 
 ** Headers
