@@ -240,13 +240,6 @@ keybindings as a beginner.
     ; option
     (which-key-mode 1))
 #+END_SRC
-** Evil mode
-As I was having some trouble with the default Emacs keybindings I wanted to try evil mode (simulating the Vim keybindings).
-#+BEGIN_SRC emacs-lisp
-;(use-package evil
-;  :ensure t
-;  :config (evil-mode 1))
-#+END_SRC
 * Emacs configuration
 ** Window
 *** Disable GUI components
