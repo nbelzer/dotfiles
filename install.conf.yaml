@@ -17,6 +17,9 @@
     ~/.emacs.d/lisp/ob-racket.el:
         create: true
         path: emacs.d/ob-racket.el
+    ~/.emacs.d/snippets:
+        create: true
+        path: emacs.d/snippets
     ~/.gitignore_global: git/.gitignore_global
     ~/.gitconfig: git/.gitconfig
 

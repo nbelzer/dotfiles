@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: image
+# key: img_
+# --
+#+CAPTION: ${1:caption}
+#+ATTR_ORG: ${2::width 250px}
+#+LABEL: fig.${3:label}
+[[$0]]

@@ -537,6 +537,22 @@ information in the otherwise empty space.
     (ivy-rich-mode 1))
 #+END_SRC
 *
+* Snippets
+Snippets are a great way to reduce the amount of repetitive work to be
+done. An example being defining images in org-mode. By using
+[[https://github.com/joaotavora/yasnippet][yasnippet]] we can define snippets with custom variables.
+
+Yasnippet no longer bundles snippets but we can take inspiration from [[http://andreacrotti.github.io/yasnippet-snippets/snippets.html][this
+great collection of existing snippets]] to build our own.
+
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :custom
+  (yas-snippet-dirs '("~/.emacs.d/snippets"))
+  :config
+  (yas-global-mode 1))
+#+end_src
+
 * Programming
 ** Linting
 *** Flycheck

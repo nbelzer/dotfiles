@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Code block
+# key: code_
+# --
+#+BEGIN_SRC $1
+
+#+END_SRC
