@@ -424,9 +424,10 @@ I want Emacs to help me keep focus of the cursor when scrolling.
 (use-package emacs
   :custom
   ; Preserve the screen position as much as possible during scrolling.
-  (scroll-preserve-screen-position t)
-  ; Keep a margin of 2 lines at the bottom when scrolling.
-  (scroll-margin 2))
+  (scroll-preserve-screen-position 1)
+  (scroll-step 1)
+  ; Keep a margin of 1 lines at the bottom when scrolling.
+  (scroll-margin 1))
 #+END_SRC
 
 ** Backups
