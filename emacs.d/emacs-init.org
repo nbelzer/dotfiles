@@ -658,6 +658,37 @@ Golang uses [[https://github.com/golang/tools/tree/master/gopls][gopls]] which h
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 #+END_SRC
 
+** Debug Adapter Protocol (DAP)
+The debug adapter protocol is the equivalent of the language server
+protocol for debugging applications. 
+
+#+BEGIN_SRC emacs-lisp
+(use-package dap-mode
+  :ensure t)
+#+END_SRC
+
+*** Golang
+To get DAP mode working for Golang we need to follow the following steps
+based on the [[https://emacs-lsp.github.io/dap-mode/page/configuration/#go][dap-mode documentation]].
++ After installing =dap-mode=, run =dap-go-setup=. This will install the
+  VSCode Go extension which includes =goDebug.js=, that is currently still
+  required. A proper dap-mode server [[https://github.com/emacs-lsp/dap-mode/issues/318][seems to be in the works]].
++ Next to this we also need to install =delve= which is the debugger tool
+  for golang. It can be installed, [[https://github.com/go-delve/delve/blob/master/Documentation/installation/osx/install.md][per instructions]], by running =go get
+  github.com/go-delve/delve/cmd/dlv=.
++ After this all is ready to debug your go programs, however you will
+  need to setup a proper =launch.json= to run your code via =dap-debug=.
+
+After some more research I found out that I can actually use =go-delve=
+directly using the =go-dlv= package. This allows me to use the grand
+unified debugger (GUD) which supports different types of debuggers. This
+uses a simpler approach as it provides you access to a (dlv) terminal
+while showing the code in a separate buffer. 
+
+While reading about [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Debuggers.html#Debuggers][GUD]] there seems to be a lot of configuration
+available and I will spend some time with it before choosing either this
+or dap-mode.
+
 ** Git
 As my git client I use the amazing magit.
 
