@@ -287,8 +287,8 @@ elements such as: =use-file-dialog=, =menu-bar-mode=, and
 (use-package emacs
   :config
   ; Set default window height to 50.
-  (add-to-list 'default-frame-alist '(height . 50))
-  (add-to-list 'default-frame-alist '(width . 180)))
+  (add-to-list 'default-frame-alist '(height . 40))
+  (add-to-list 'default-frame-alist '(width . 80)))
 #+END_SRC
 *** Tab Bar
 The tab bar (Emacs 27+) allows the different workspace layouts per tab. This is quite useful. However the native tab bar is currently not enabled on macOS.
