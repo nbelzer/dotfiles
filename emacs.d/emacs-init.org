@@ -536,7 +536,7 @@ information in the otherwise empty space.
     :config
     (ivy-rich-mode 1))
 #+END_SRC
-*
+
 * Snippets
 Snippets are a great way to reduce the amount of repetitive work to be
 done. An example being defining images in org-mode. By using
@@ -712,8 +712,7 @@ focus.
     :defer
     :diminish
     :config
-    (setq olivetti-body-width 100)
-    ;(setq olivetti-minimum-body-width 80)
+    (setq olivetti-body-width 70)
     (setq olivetti-recal-visual-line-mode-entry-state t)
     (define-minor-mode nbelzer/zen-mode
       "Toggle zen-mode in the current buffer."
