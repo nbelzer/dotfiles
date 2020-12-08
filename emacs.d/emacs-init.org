@@ -227,6 +227,20 @@ shortcuts.
            ("C-o" . other-window)))
 #+END_SRC
 
+In addition to keybindings for buffer navigation it useful to have Emacs
+highlight the cursor position upon switching buffers. This is exactly
+what [[https://github.com/Malabarba/beacon][beacon]] does.
+
+#+BEGIN_SRC emacs-lisp
+(use-package beacon
+  :ensure t
+  :config
+  (beacon-mode 1)
+  (setq beacon-color "#E9D5FF")
+  (setq beacon-size 30))
+#+END_SRC
+
+
 ** Which-key
 [[https://github.com/justbur/emacs-which-key][which-key]] provides hints for which keys can be pressed given a certain
 timeout. This seems like a package that will help me explore more
