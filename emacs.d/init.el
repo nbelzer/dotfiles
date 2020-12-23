@@ -1,3 +1,7 @@
+;; Make startup faster by reducing the frequency of garbage
+;; collection. The default is 800 kilobytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
 (require 'package)
 
 (add-to-list 'package-archives
@@ -39,3 +43,5 @@
       (load-file el)
     (org-babel-load-file org)))
 
+;; Make GC pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))

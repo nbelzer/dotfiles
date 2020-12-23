@@ -213,6 +213,7 @@ To be able to jump through =camelCase= words when programming I enable
 
 #+BEGIN_SRC emacs-lisp
   (use-package subword
+    :defer t
     :hook (prog-mode-hook . subword-mode)) 
 #+END_SRC
 
@@ -321,7 +322,19 @@ I set up a custom keymap, given the prefix =C-,= for navigation of tabs and buff
   :config
   (define-prefix-command (make-symbol "C-,"))
   :bind (("C-, t" . tab-bar-switch-to-tab)
-         ("C-, b" . switch-to-buffer)))
+         ("C-, b" . bufler-switch-buffer)))
+#+END_SRC
+
+*** Mode line
+I'm not a big fan of the clutter of minor-modes shown in the
+mode-line.  Knowing which modes are enabled hasn't helped me unless I'm
+messing around with a new package.  This is not enough of an argument to
+keep the mode line filled in, which is why I disable it.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs)
+;;  :custom
+;;  (mode-line-format nil))
 #+END_SRC
 
 ** Typeface
@@ -344,14 +357,15 @@ protesilaos.
   (x-underline-at-descent-line t)
   (underline-minimum-offset 1)
    ; Use a slightly more relaxed line height to ease display.
-  (line-spacing 0.2)
+  (line-spacing 0.15)
   :config
-  (set-face-attribute 'default nil :font "Jetbrains Mono-15")
-  (set-face-attribute 'fixed-pitch nil :font "Jetbrains Mono-15")
+  (set-face-attribute 'default nil :font "JetBrains Mono-15")
+  (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono-15")
   (set-face-attribute 'variable-pitch nil :font "SF Pro Text-16")
   ; Enable variable pitch mode in org and markdown buffers.
   :hook ((org-mode-hook . variable-pitch-mode)
-         (markdown-mode-hook . variable-pitch-mode)))
+         (markdown-mode-hook . variable-pitch-mode))
+  :bind ("C-k C-k" . nbelzer/toggle-font-spacing))
 #+END_SRC
 
 *** Parentheses
@@ -380,6 +394,20 @@ and great accessibility. By default I load the light theme.
   :ensure t
   :config
   (load-theme 'modus-operandi t))
+#+END_SRC
+
+** Buffer Management
+I stumbled upon this package: [[https://github.com/alphapapa/bufler.el][bufler]] which /is like a butler for your
+buffers/. It allows organisation of buffers based on rules (like a
+specific workspace). It also plays nicely with the =tab-bar-mode=
+introduced in Emacs 27.
+
+#+BEGIN_SRC emacs-lisp
+(use-package bufler
+  :ensure t
+  :custom
+  ; Enable bufler-mode on startup.
+  (bufler-mode))
 #+END_SRC
 
 ** Indentation
@@ -460,6 +488,27 @@ folder for your backups.
     (kept-old-versions 2)
     (version-control t))
 #+END_SRC
+** Startup Time
+To keep Emacs speedy (especially during startup) I followed a few tricks
+described by [[https://blog.d46.us/advanced-emacs-startup/][Joe Schafer]]. This piece of code displays a message on
+startup that shows how quickly Emacs was ready.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "Emacs ready in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+#+END_SRC
+
+Running a speed test (see next code block) the theoretical fastest I
+could load Emacs is =0.7s=. With current optimisations I achieve about
+=2.22s= so there is definitely some extra room for improvement however,
+given the tiny amount of time spent I am quite happy with this speedup
+time.
+
 * macOS Specific
 ** Fix folder access
 When using the default Emacs cask from brew on macOS 11 I ran in to some
@@ -502,6 +551,7 @@ After trying out =ansi-term= for a while I found that it acts a little strange f
 
 #+BEGIN_SRC emacs-lisp
 (use-package vterm
+  :defer t
   :ensure t)
 #+END_SRC
 * Ivy, Counsel, Prescient and Ivy-rich
@@ -514,6 +564,7 @@ information in the otherwise empty space.
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
+    :defer 1
     :ensure t
     :custom
     ; Show recently used files in switch buffer
@@ -523,10 +574,12 @@ information in the otherwise empty space.
     (ivy-mode 1))
 
   (use-package counsel
+    :defer 1
     :ensure t
     :after ivy)
 
   (use-package prescient
+    :defer 1
     :ensure t
     :custom
     (prescient-history-length 50)
@@ -536,6 +589,7 @@ information in the otherwise empty space.
     (prescient-persist-mode 1))
 
   (use-package ivy-prescient
+    :defer 1
     :ensure t
     :after (prescient ivy)
     :custom
@@ -545,6 +599,7 @@ information in the otherwise empty space.
     (ivy-prescient-mode 1))
 
   (use-package ivy-rich
+    :defer 2
     :ensure t
     :after ivy
     :config
@@ -561,6 +616,8 @@ great collection of existing snippets]] to build our own.
 
 #+begin_src emacs-lisp
 (use-package yasnippet
+  :ensure t
+  :defer 1
   :custom
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
   :config
@@ -575,6 +632,7 @@ programming languages out of the box.
 
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
+    :defer t
     :ensure t
     :custom
     ; Check syntax on save.
@@ -582,12 +640,14 @@ programming languages out of the box.
   
   (use-package flycheck-indicator
     ; Show flycheck messages on the modeline.
+    :defer t
     :ensure t
     :after flycheck
     :hook (flycheck-mode-hook . flycheck-indicator-mode))
 
   (use-package flycheck-posframe
     ; Show flycheck messages as small popup.
+    :defer t
     :ensure t
     :after flycheck
     :hook (flycheck-mode-hook . flycheck-posframe-mode))
@@ -598,10 +658,10 @@ Some defaults I like to apply in programming mode:
 +  Show line numbers in a prettified format.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :custom
-    (linum-format "%3d ")
-    :hook (prog-mode-hook . display-line-numbers-mode))
+;;  (use-package emacs
+    ;; :custom
+    ;; (linum-format "%3d ")
+    ;; :hook (prog-mode-hook . display-line-numbers-mode))
 #+END_SRC
 
 ** Language Server Protocol (LSP)
@@ -613,6 +673,7 @@ and autocomplete features such as:
 
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
+    :defer t
     :ensure t
     :custom
     ; Set flycheck as the default diagnostic package.
@@ -638,6 +699,7 @@ that I have installed.
 
 #+BEGIN_SRC emacs-lisp
   (use-package pyvenv
+    :defer t
     :ensure t)
 #+END_SRC
 
@@ -647,8 +709,10 @@ with XCode.
 
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-sourcekit
+    :defer t
     :ensure t)
   (use-package swift-mode
+    :defer t
     :ensure t
     :hook (swift-mode-hook . lsp))
 #+END_SRC
@@ -657,9 +721,11 @@ Golang uses [[https://github.com/golang/tools/tree/master/gopls][gopls]] which h
 
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
+    :defer t
     :ensure t)
 
   (use-package lsp-mode
+    :defer t
     :ensure t
     :after go-mode
     :hook (go-mode-hook . lsp-deferred))
@@ -678,6 +744,7 @@ protocol for debugging applications.
 
 #+BEGIN_SRC emacs-lisp
 (use-package dap-mode
+  :defer t
   :ensure t)
 #+END_SRC
 
@@ -708,6 +775,7 @@ As my git client I use the amazing magit.
 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
+    :defer t
     :ensure t
     :custom
     ; Show fine differences for the current diff hunk only, used to
@@ -723,10 +791,10 @@ focus.
 #+BEGIN_SRC emacs-lisp
   (use-package olivetti
     :ensure 
-    :defer
+    :defer t
     :diminish
     :config
-    (setq olivetti-body-width 70)
+    (setq olivetti-body-width 0.9)
     (setq olivetti-recal-visual-line-mode-entry-state t)
     (define-minor-mode nbelzer/zen-mode
       "Toggle zen-mode in the current buffer."
@@ -740,7 +808,8 @@ focus.
           (delete-other-windows)
           (olivetti-mode -1)
           (message "Disabled Zen Mode"))))
-    :bind ("C-c z" . nbelzer/zen-mode))
+    :bind ("C-c z" . nbelzer/zen-mode)
+    :hook (prog-mode-hook . olivetti-mode))
 #+END_SRC
 ** Racket
 I use the racket language for going through SICP. Set it up according to
@@ -748,24 +817,63 @@ I use the racket language for going through SICP. Set it up according to
 
 #+BEGIN_SRC emacs-lisp
 ; Allows emacs to find our ob-racket.el file.
-(add-to-list 'load-path "~/.emacs.d/lisp")
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+
+(use-package ob-racket
+  :after org
+  :pin manual
+  :defer 2
+  :commands
+  (org-babel-execute:racket
+   org-babel-expand-body:racket))
 
 ; Racket-mode enables highlighting
 (use-package racket-mode
-  :after org
-  :pin manual
-  :config
-  ; Add racket and scribble to the enabled org-babel languages.
-  (append '((racket . t) (scribble . t)) org-babel-load-languages))
+  :ensure t
+  :defer t)
 #+END_SRC
+
+I have installed racket through =brew install minimal-racket=. To support
+the custom [[https://docs.racket-lang.org/sicp-manual/SICP_Language.html][SICP language]] in racket you can install it using the
+following command:
+#+BEGIN_EXAMPLE bash
+raco pkg install sicp
+#+END_EXAMPLE
 
 ** GraphQL
 #+BEGIN_SRC emacs-lisp
 (use-package graphql-mode
+  :ensure t
+  :defer t
   :mode "\\.gql\\'")
 #+END_SRC
 
+** Docker
+#+BEGIN_SRC emacs-lisp
+(use-package dockerfile-mode
+  :ensure t
+  :defer t
+  :mode "\\.Dockerfile\\'")
+#+END_SRC
+** YAML
+#+BEGIN_SRC emacs-lisp
+(use-package yaml-mode
+  :ensure t
+  :defer t
+  :mode "\\.ya?ml\\'")
+#+END_SRC
 * Org mode
+** Keybindings
+One of the keybindings I use often is =C-,= which opens a buffer to either
+buffer or tab navigation. However in org-mode this is bound to some
+action on agenda files.
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :bind (:map org-mode-map
+              ("C-," . nil)))
+#+END_SRC
+$
 ** Content
 In org mode I prefer my content to be centered using =olivetti-mode= by
 default.
@@ -774,6 +882,7 @@ default.
 (use-package emacs
   :hook (org-mode-hook . olivetti-mode)
   :custom
+  (org-return-follows-link t)
   (org-startup-folded t))
 #+END_SRC
 
@@ -842,6 +951,20 @@ don't think this is neccesary so  I disabled it.
   (org-edit-src-content-indentation 0))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(use-package ob-python
+  :defer t
+  :ensure org-plus-contrib
+  :commands (org-babel-execute:python))
+
+(use-package ob-sqlite
+  :defer t
+  :ensure org-plus-contrib
+  :commands
+  (org-babel-execute:sqlite
+   org-babel-expand-body:sqlite))
+#+END_SRC
+
 ** Latex
 To support latex code we need to install both Latex and dvipng. Both can be done through the following commands on macOS.
 
@@ -859,6 +982,129 @@ Based on [[https://madcoda.com/2014/04/getting-started-with-texlatex-on-maclinux
   :custom
   (org-startup-with-latex-preview t)
   (org-latex-create-formula-image-program 'dvisvgm))
+#+END_SRC
+
+** Org-roam
+Roam is a relatively new online tool that allows a more interlinked-type
+of note taking. Links to one note automatically create backlinks. This
+allows easy exploration of your notes (if you take care in creating and
+linking them).
+
+This system reflects the [[https://en.wikipedia.org/wiki/Zettelkasten][slip-box method]] and the idea is
+that once you attain a reasonable number of notes, that all link to each
+other somehow, you will be able do draw inspiration and knowledge from
+them. This improves upon hierarchical note taking as what you might
+write down is more likely to get lost.
+
+Org-roam specifically replicates this behaviour from Roam, allowing easy
+referencing of other notes in your system. This automatically creates
+backlinks for those notes. Providing you with both the note and related
+notes in an instant. Roam and org-roam have the benefit over the
+handwritten slip-box method in that they can provide more information
+about your links and backlinks and have a technically infinite storage
+capacity. One of the major benefits of using the slip-box method did
+seem to be in the required concise-ness of the notes. An explanation or
+thought had to fit on an index card. This can be replicated using some
+sort of character limit, however I'll first experiment with keeping this
+in mind while developing my personal slip-box.
+
++ [[https://blog.viktomas.com/posts/slip-box/][A nice short guide on the Zettelkasten (slip-box) method]]
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+  :ensure t
+  :hook
+  (org-mode-hook . org-roam-mode)
+  :custom
+  (org-roam-directory "~/org/slip-box/")
+  :bind (:map org-roam-mode-map
+              (("C-c n l" . org-roam)
+               ("C-c n f" . org-roam-find-file)
+               ("C-c n g" . org-roam-graph))
+         :map org-mode-map
+              (("C-c n i" . org-roam-insert))
+              (("C-c n I" . org-roam-insert-immediate))))
+#+END_SRC
+
+* PDF
+=pdf-tools= is a great package for interacting with PDF files in
+Emacs. However I had some trouble setting it up due to a 'missing'
+dependency: zlib. Even though zlib is installed through brew I had to
+inject the following three lines just above the =./configure ...= command
+as for some reason just setting them as environment variables through
+=setenv= did not work.
+
+#+BEGIN_EXAMPLE bash
+export LDFLAGS="-L/usr/local/opt/zlib/lib"
+export CPPFLAGS="-I/usr/local/opt/zlib/include"
+export PACKAGE_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
+#+END_EXAMPLE
+
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :ensure t
+  :defer t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :custom
+  ; Enable support for retina display.  See
+  ; https://github.com/politza/pdf-tools/issues/51#issuecomment-544049068
+  (pdf-view-use-scaling t))
+#+END_SRC
+
+Next to the installation problem I was having issues with blurry
+rendering of the pdf-files (this also applied to org-mode latex). This
+was solved by using a mac-specific Emacs build: [[https://bitbucket.org/mituharu/emacs-mac/src/master/][emacs-mac]], which
+includes many macOS native features like smooth scrolling.
+
+* Bibtex
+For my thesis I need a robust solution to manage my research papers, the
+relation to other papers, notes and highlights and their bibtex
+entries. After searching and trying out different programs, like EndNote
+and Zotero, I found [[https://github.com/tmalsburg/helm-bibtex][bibtex-completion]] which seems to provide the best
+match with me.
+
+One of the powerful features are [[https://github.com/tmalsburg/helm-bibtex#tag-publications][tags]] to add tags to bibtex
+entries. This allows the sorting of entries as =to-read= or =msc-thesis=.
+
+#+BEGIN_SRC emacs-lisp
+(use-package bibtex-completion
+  :ensure t)
+
+(use-package ivy-bibtex
+  :ensure t
+  :requires bibtex-completion
+  :custom
+  ; Required according to the documentation on Github.
+  (ivy-re-builders-alist '((ivy-bibtex . ivy--regex-ignore-order)
+                           (t . ivy--regex-plus)))
+  ; Where the bibtex bibliography is stored.
+  (bibtex-completion-bibliography '("~/org/bibtex/bibtex.bib"))
+  ; Where the pdf-files can be found.
+  (bibtex-completion-library-path '("~/org/bibtex/pdf"))
+  ; Where the notes are stored.
+  (bibtex-completion-notes-path "~/org/bibtex/notes")
+  ; Allow search by tags.
+  (bibtex-completion-additional-search-fields '(tags))
+  ; Open pdf files with the system viewer (on macOS) as I have been
+  ; unable to annotate the pdf in pdf-tools.
+  (bibtex-completion-pdf-open-function
+   (lambda (fpath)
+     (start-process "open" "*open*" "open" fpath))))
+#+END_SRC
+
+Similarly [[https://github.com/jkitchin/org-ref/][org-ref]] builds upon this and allows citation of your bibtex
+items in org-buffers. Next to this many other small features are
+included like creating bibtex entries through a DOI, including
+downloading of the related pdf.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :requires bibtex-completion
+  :ensure t
+  :custom
+  (org-ref-default-bibliography '("~/org/bibtex/bibtex.bib"))
+  (org-ref-bibliography-notes "~/org/bibtex/notes/")
+  (org-ref-pdf-directory "~/org/bibtex/pdf/"))
 #+END_SRC
 
 * Markdown-mode
@@ -890,6 +1136,8 @@ Try correcting the word with =M-$= which calls =ispell-word=.
 #+BEGIN_SRC emacs-lisp
 ; Ispell uses the aspell backend.
 (use-package ispell
+  :ensure t
+  :defer t
   :custom 
   (ispell-program-name "aspell")
   ; Increase suggestion speed.
@@ -897,6 +1145,8 @@ Try correcting the word with =M-$= which calls =ispell-word=.
 
 ; Flyspell highlights incorrect words on change
 (use-package flyspell
+  :ensure t
+  :defer t
   :hook (text-mode-hook . flyspell-mode)
   :bind (("C-$" . flyspell-buffer)
          :map flyspell-mode-map
@@ -928,4 +1178,26 @@ functionality. These functions are prefixed with =nbelzer/=.
   "Reloads the emacs configuration."
   (interactive)
   (load-file "~/.emacs.d/init.el"))
+
+(defun nbelzer/enable-relaxed-font ()
+  "Loads a more relaxed font configuration with more line spacing
+and a higher font size."
+  (interactive)
+  (set-face-attribute 'default nil :font "JetBrains Mono 1.3-16")
+  (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono 1.3-16")
+  (set-face-attribute 'variable-pitch nil :font "SF Pro Text-17"))
+
+(defun nbelzer/enable-tight-font ()
+  "Loads a tightly spaced font configuration with a small line spacing and smaller size"
+  (interactive)
+  (set-face-attribute 'default nil :font "JetBrains Mono-15")
+  (set-face-attribute 'fixed-pitch nil :font "JetBrains Mono-15")
+  (set-face-attribute 'variable-pitch nil :font "SF Pro Text-16"))
+
+(defun nbelzer/toggle-font-spacing ()
+  "Toggle the spacing of the font between tight- and relaxed."
+  (interactive)
+  (if (string= (font-get (face-attribute 'default :font) :name) "JetBrains Mono-15")
+      (nbelzer/enable-relaxed-font)
+    (nbelzer/enable-tight-font)))
 #+END_SRC
