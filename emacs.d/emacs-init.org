@@ -509,6 +509,33 @@ could load Emacs is =0.7s=. With current optimisations I achieve about
 given the tiny amount of time spent I am quite happy with this speedup
 time.
 
+** Dired
+Dired is a great package (included in Emacs) to browse files. Some
+tweaks make it even better:
++ Delete files by moving them to the trash.
++ Enable recursive deletes and copies by default.
++ Customize the display format:
+  + Show all files except =.= and =..= (=-A=),
+  + Show appropriate symbol for the type of file (=-F=),
+  + Show human readable file sizes (=-h=).
++ Hide file details by default (=dired-hide-details-mode=).
++ Use line highlighting (=hl-line-mode=)
+#+BEGIN_SRC emacs-lisp
+(use-package dired
+  :custom
+  (dired-use-ls-dired nil)
+  (delete-by-moving-to-trash t)
+  (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
+  ; Customize the listing to hide . and .. (-A), show sizes in human
+  ; readable format (-h), and show the appropriate symbol for the
+  ; type of file/directory (see ls man page).
+  (dired-listing-switches "-lAFh")
+  ; By default hide details on each file highlight the entire line.
+  :hook (dired-mode-hook . dired-hide-details-mode)
+        (dired-mode-hook . hl-line-mode))
+#+END_SRC
+
 * macOS Specific
 ** Fix folder access
 When using the default Emacs cask from brew on macOS 11 I ran in to some
