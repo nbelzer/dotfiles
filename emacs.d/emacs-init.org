@@ -76,21 +76,24 @@ keeping the loading and configuration together.
 Derided from the dotemacs from [[https://protesilaos.com/dotemacs/#h:b343378b-d3ec-4c90-8117-6cf92abee45b][Protesilaos]] I like to rebuild my init file on Emacs exit, together with refreshing the package cache.
 
 #+BEGIN_SRC emacs-lisp
-(use-package emacs
-  :config
-  (defun prot/rebuild-emacs-init ()
-    "Produce Elisp init from my Org dotemacs.
+(defun prot/rebuild-emacs-init ()
+  "Produce Elisp init from my Org dotemacs.
 Add this to `kill-emacs-hook', to use the newest file in the next
 session.  The idea is to reduce startup time, though just by
 rolling it over to the end of a session rather than the beginning
 of it."
-    (let ((init-el "~/.emacs.d/emacs-init.el")
-          (init-org "~/.emacs.d/emacs-init.org"))
-      (when init-el
-        (delete-file init-el))
-      (org-babel-tangle-file init-org init-el)))
-  :hook ((kill-emacs-hook . prot/rebuild-emacs-init)
-         (kill-emacs-hook . package-quickstart-refresh)))
+  (interactive)
+  (declare-function org-babel-tangle-file "ob-tangle")
+  (let ((init-el "~/.emacs.d/emacs-init.el")
+        (init-org "~/.emacs.d/emacs-init.org"))
+    (when (file-exists-p init-el)
+      (delete-file init-el))
+    (org-babel-tangle-file init-org init-el)
+    (byte-compile-file init-el)))
+
+(use-package emacs
+  :config
+  :hook ((kill-emacs-hook . prot/rebuild-emacs-init)))
 #+END_SRC
 ** Where I run Emacs
 I run Emacs on macOS as I use a mac as my day-to-day system. Therefore
@@ -229,13 +232,11 @@ shortcuts.
            ("C-w" . kill-current-buffer)))
 #+END_SRC
 
-In addition to keybindings for buffer navigation it useful to have Emacs
-highlight the cursor position upon switching buffers. This is exactly
-what [[https://github.com/Malabarba/beacon][beacon]] does.
+In addition to keybindings for buffer navigation it useful to have Emacs highlight the cursor position upon switching buffers. This is exactly what [[https://github.com/Malabarba/beacon][beacon]] does.
 
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
-  :ensure t
+  :defer t
   :config
   (beacon-mode 1)
   (setq beacon-color "#E9D5FF")
@@ -341,16 +342,9 @@ keep the mode line filled in, which is why I disable it.
 
 ** Typeface
 *** Font
-I use the Jetbrains Mono font as a default for Emacs. Default size of 16
-as I prefer my font to be a bit bigger. 
+I use the Jetbrains Mono font as a default for Emacs. Default size of 15 as I prefer my font to be a bit bigger.
 
-Next to this I am using a custom font for =variable-pitch= as this
-allows me to have a normal spaced font for text in org mode
-buffers. This is based on [[https://www.youtube.com/watch?v=Oiu3LFK_rX8][this video from protesilaos]]. To make this work
-correctly with inline code the font sizes should be tested an relatively
-similar. It is possible that the behaviour does not work withh your
-theme. If you are encountering issues try using the modus themes from
-protesilaos.
+Next to this I am using a custom font for =variable-pitch= as this allows me to have a normal spaced font for text in org mode buffers. This is based on [[https://www.youtube.com/watch?v=Oiu3LFK_rX8][this video from protesilaos]]. To make this work correctly with inline code the font sizes should be tested an relatively similar. It is possible that the behaviour does not work with your theme. If you are encountering issues try using the modus themes from Protesilaos.
 
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
@@ -361,9 +355,9 @@ protesilaos.
   ; Use a slightly more relaxed line height to ease display.
   (line-spacing 0.25)
   :config
-  (set-face-attribute 'default nil :font "Iosevka Fixed-17")
-  (set-face-attribute 'fixed-pitch nil :font "Iosevka Fixed-17")
-  (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-17")
+  (set-face-attribute 'default nil :font "Iosevka Fixed-18")
+  (set-face-attribute 'fixed-pitch nil :font "Iosevka Fixed-18")
+  (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-18")
   (set-face-attribute 'org-level-1 nil :font "SF Pro Display-20" :weight 'bold)
   (set-face-attribute 'org-level-2 nil :font "SF Pro Display-20" :weight 'bold)
   (set-face-attribute 'org-level-3 nil :font "SF Pro Display-20" :weight 'bold)
@@ -377,7 +371,6 @@ Highlight paratheses with no delay.
 
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
-  :ensure t
   :custom
   (show-paren-delay 0)
   (show-paren-style 'mixed)
@@ -391,13 +384,21 @@ I use the [[https://gitlab.com/protesilaos/modus-themes][modus-themes]] from Pro
 and great accessibility. By default I load the light theme.
 
 #+BEGIN_SRC emacs-lisp
-(use-package modus-vivendi-theme
-  :ensure t)
-
-(use-package modus-operandi-theme
-  :ensure t
+(use-package modus-themes
+  :ensure
+  :init
+  (modus-themes-load-themes)
   :config
-  (load-theme 'modus-operandi t))
+  (modus-themes-load-operandi))
+
+(defun nbelzer/apply-theme (appearance)
+  "Load these, taking current system APPEARANCE into consideration."
+  (mapc #'disable-theme custom-enabled-themes)
+  (pcase appearance
+    ('light (load-theme 'modus-operandi t))
+    ('dark (load-theme 'modus-vivendi t))))
+
+(add-hook 'ns-system-appearance-change-functions #'nbelzer/apply-theme)
 #+END_SRC
 
 ** Buffer Management
@@ -647,7 +648,7 @@ great collection of existing snippets]] to build our own.
 
 #+begin_src emacs-lisp
 (use-package yasnippet
-  :ensure t
+  :ensure
   :defer 1
   :custom
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
@@ -762,6 +763,7 @@ To use the Microsoft language server we need to install a separate package.
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-python-ms
   :ensure t
+  :defer t
   :init
   (setq lsp-python-ms-auto-install-server t)
   (setq lsp-python-ms-python-executable "/usr/local/bin/python3")
@@ -813,7 +815,7 @@ To enhance the autocomplete experience we use [[https://company-mode.github.io][
   :ensure t
   :config
 ;  (add-to-list 'company-backends 'company-ispell)
-  (setq company-global-modes '(not org-mode markdown-mode))
+  (setq company-global-modes '(not org-mode markdown-mode latex-mode))
   :hook (after-init-hook . global-company-mode))
 (use-package company-box
   :ensure t
@@ -903,7 +905,7 @@ I use the racket language for going through SICP. Set it up according to
 (use-package ob-racket
   :after org
   :pin manual
-  :defer 2
+  :defer t
   :commands
   (org-babel-execute:racket
    org-babel-expand-body:racket))
@@ -964,7 +966,7 @@ action on agenda files.
   :bind (:map org-mode-map
               ("C-," . nil)))
 #+END_SRC
-$
+
 ** Content
 In org mode I prefer my content to be centered using =olivetti-mode= by
 default.
@@ -985,7 +987,7 @@ To make my headers stand out from the default =* Header1= or =** Header
 (use-package org-superstar
   :ensure
   :after org
-  :defer
+  :defer t
   :custom
   (org-superstar-remove-leading-stars t)
 ;  (setq org-superstar-headline-bullets-list
@@ -1061,6 +1063,7 @@ don't think this is neccesary so  I disabled it.
 #+BEGIN_SRC emacs-lisp
 (use-package org-src
   :after org
+  :defer t
   :custom
   (org-src-preserve-indentation t)
   (org-edit-src-content-indentation 0))
@@ -1078,6 +1081,17 @@ don't think this is neccesary so  I disabled it.
   :commands
   (org-babel-execute:sqlite
    org-babel-expand-body:sqlite))
+
+(use-package slime
+  :defer t
+  :custom
+  (inferior-lisp-program "clisp"))
+
+(use-package ob-lisp
+  :defer t
+  :after org
+  :commands
+  (org-babel-execute:lisp))
 #+END_SRC
 
 ** Latex
@@ -1107,6 +1121,7 @@ fragment. To me this seems like the ideal workflow.
 #+BEGIN_SRC emacs-lisp
 (use-package org-fragtog
   :ensure
+  :defer t
   :hook (org-mode-hook . org-fragtog-mode))
 #+END_SRC
 
@@ -1139,6 +1154,7 @@ in mind while developing my personal slip-box.
 #+BEGIN_SRC emacs-lisp
 (use-package org-roam
   :ensure t
+  :defer t
   :hook
   (org-mode-hook . org-roam-mode)
   :custom
@@ -1183,21 +1199,19 @@ was solved by using a mac-specific Emacs build: [[https://bitbucket.org/mituharu
 includes many macOS native features like smooth scrolling.
 
 * Bibtex
-For my thesis I need a robust solution to manage my research papers, the
-relation to other papers, notes and highlights and their bibtex
-entries. After searching and trying out different programs, like EndNote
-and Zotero, I found [[https://github.com/tmalsburg/helm-bibtex][bibtex-completion]] which seems to provide the best
-match with me.
+For my thesis I need a robust solution to manage my research papers, the relation to other papers, notes and highlights and their bibtex entries. After searching and trying out different programs, like EndNote and Zotero, I found [[https://github.com/tmalsburg/helm-bibtex][bibtex-completion]] which seems to provide the best match with me.
 
 One of the powerful features are [[https://github.com/tmalsburg/helm-bibtex#tag-publications][tags]] to add tags to bibtex
 entries. This allows the sorting of entries as =to-read= or =msc-thesis=.
 
 #+BEGIN_SRC emacs-lisp
 (use-package bibtex-completion
+  :defer 2
   :ensure t)
 
 (use-package ivy-bibtex
   :ensure t
+  :defer 1
   :requires bibtex-completion
   :custom
   ; Required according to the documentation on Github.
@@ -1227,15 +1241,13 @@ entries. This allows the sorting of entries as =to-read= or =msc-thesis=.
      (start-process "open" "*open*" "open" fpath))))
 #+END_SRC
 
-Similarly [[https://github.com/jkitchin/org-ref/][org-ref]] builds upon this and allows citation of your bibtex
-items in org-buffers. Next to this many other small features are
-included like creating bibtex entries through a DOI, including
-downloading of the related pdf.
+Similarly [[https://github.com/jkitchin/org-ref/][org-ref]] builds upon this and allows citation of your bibtex items in org-buffers. Next to this many other small features are included like creating bibtex entries through a DOI, including downloading of the related pdf.
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-ref
   :requires bibtex-completion
   :ensure t
+  :defer 2
   :custom
   (org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
   (org-ref-default-bibliography '("~/org/bibtex/bibtex.bib"))
@@ -1296,7 +1308,7 @@ Emacs is a great application to read RFCs in. With the help of [[https://github.
 #+BEGIN_SRC emacs-lisp
 (use-package rfc-mode
   :ensure t
-  :defer 1
+  :defer t
   :custom
   (rfc-mode-directory (expand-file-name "~/Documents/rfc/")))
 #+END_SRC
