@@ -335,19 +335,22 @@ Next to this I am using a custom font for =variable-pitch= as this allows me to 
 
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
-  :ensure t
   :custom
   (x-underline-at-descent-line t)
   (underline-minimum-offset 1)
   ; Use a slightly more relaxed line height to ease display.
-  (line-spacing 0.25)
+  (line-spacing 0.2)
   :config
-  (set-face-attribute 'default nil :font "Iosevka Fixed-18")
-  (set-face-attribute 'fixed-pitch nil :font "Iosevka Fixed-18")
-  (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-18")
-  (set-face-attribute 'org-level-1 nil :font "SF Pro Display-20" :weight 'bold)
-  (set-face-attribute 'org-level-2 nil :font "SF Pro Display-20" :weight 'bold)
-  (set-face-attribute 'org-level-3 nil :font "SF Pro Display-20" :weight 'bold)
+  (set-face-attribute 'default nil :font "Iosevka Fixed-14")
+  (set-face-attribute 'fixed-pitch nil :font "Iosevka Fixed-14")
+  (set-face-attribute 'org-block nil :font "Iosevka Fixed-14")
+  (set-face-attribute 'org-table nil :font "Iosevka Fixed-14")
+  (set-face-attribute 'org-date nil :font "Iosevka Fixed-14")
+  (set-face-attribute 'org-meta-line nil :font "Iosevka Fixed-14")
+  (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-14")
+  (set-face-attribute 'org-level-1 nil :font "SF Pro Display-15" :weight 'bold)
+  (set-face-attribute 'org-level-2 nil :font "SF Pro Display-15" :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :font "SF Pro Display-15" :weight 'bold)
   ; Enable variable pitch mode in org and markdown buffers.
   :hook ((org-mode-hook . variable-pitch-mode)
          (markdown-mode-hook . variable-pitch-mode)))
