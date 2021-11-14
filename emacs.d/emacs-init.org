@@ -1140,28 +1140,13 @@ fragment. To me this seems like the ideal workflow.
 #+END_SRC
 
 ** Org-roam
-Roam is a relatively new online tool that allows a more interlinked-type
-of note taking. Links to one note automatically create backlinks. This
-allows easy exploration of your notes (if you take care in creating and
-linking them).
+Roam is a relatively new online tool that allows a more interlinked-type of note taking. Links to one note automatically create backlinks. This allows easy exploration of your notes (if you take care in creating and linking them).
 
 This system reflects the [[https://en.wikipedia.org/wiki/Zettelkasten][slip-box method]] and the idea is
-that once you attain a reasonable number of notes, that all link to each
-other somehow, you will be able do draw inspiration and knowledge from
-them. This improves upon hierarchical note taking as what you might
-write down is more likely to get lost.
+that once you attain a reasonable number of notes, that all link to each other somehow, you will be able do draw inspiration and knowledge from them. This improves upon hierarchical note taking as what you might write down is more likely to get lost.
 
-Org-roam specifically replicates this behaviour from Roam, allowing easy
-referencing of other notes in your system. This automatically creates
-backlinks for those notes. Providing you with both the note and related
-notes in an instant. Roam and org-roam have the benefit over the
-handwritten slip-box method in that they can provide more information
-about your links and backlinks and have a technically infinite storage
-capacity. One of the major benefits of using the slip-box method did
-seem to be in the required concise-ness of the notes. An explanation or
-thought had to fit on an index card. This can be replicated using some
-sort of character limit, however I'll first experiment with keeping this
-in mind while developing my personal slip-box.
+Org-roam specifically replicates this behaviour from Roam, allowing easy referencing of other notes in your system. This automatically creates backlinks for those notes. Providing you with both the note and related notes in an instant. Roam and org-roam have the benefit over the handwritten slip-box method in that they can provide more information about your links and backlinks and have a technically infinite storage capacity. One of the major benefits of using the slip-box method did
+seem to be in the required concise-ness of the notes. An explanation or thought had to fit on an index card. This can be replicated using some sort of character limit, however I'll first experiment with keeping this in mind while developing my personal slip-box.
 
 + [[https://blog.viktomas.com/posts/slip-box/][A nice short guide on the Zettelkasten (slip-box) method]]
 
@@ -1169,8 +1154,9 @@ in mind while developing my personal slip-box.
 (use-package org-roam
   :ensure t
   :defer t
-  :hook
-  (org-mode-hook . org-roam-mode)
+  :init
+  (setq org-roam-v2-ack t)
+  (org-roam-db-autosync-mode)
   :custom
   (org-roam-directory "~/org/slip-box/")
   :bind (:map org-roam-mode-map
@@ -1220,12 +1206,10 @@ entries. This allows the sorting of entries as =to-read= or =msc-thesis=.
 
 #+BEGIN_SRC emacs-lisp
 (use-package bibtex-completion
-  :defer 2
   :ensure t)
 
 (use-package ivy-bibtex
   :ensure t
-  :defer 1
   :requires bibtex-completion
   :custom
   ; Required according to the documentation on Github.
@@ -1276,21 +1260,14 @@ Similarly [[https://github.com/jkitchin/org-ref/][org-ref]] builds upon this and
 #+END_SRC
 
 * Spelling
-Spell checking is one of the great things that computers can help us
-with, whether accidental or not the computer should help us out and
-point us to possible errors.
+Spell checking is one of the great things that computers can help us with, whether accidental or not the computer should help us out and point us to possible errors.
 
 There seem to be two main back-ends used for spell checking, Aspell and Hunspell. At the time of writing (July 2020) Aspell last release was =0.60.8= (13 Oct 2019) while Hunspell's latest release was =1.7.0= (12 Nov 2018). For now I've chosen to use =aspell=.
 
-By installing =aspell= using =brew install aspell= we gain some nice
-auto-correct features using the default =ispell-mode=. However I want to
-this behaviour:
-+ The spell checking should happen in the background, only requiring my
-  attention when something is misspelled.
-+ The way it should ask for my attention is by highlighting the word
-  (perhaps in red).
-+ It should be activated by default in text buffers such as =org-mode=,
-  =markdown= and git commits.
+By installing =aspell= using =brew install aspell= we gain some nice auto-correct features using the default =ispell-mode=. However I want to this behaviour:
++ The spell checking should happen in the background, only requiring my attention when something is misspelled.
++ The way it should ask for my attention is by highlighting the word (perhaps in red).
++ It should be activated by default in text buffers such as =org-mode=, =markdown= and git commits.
 
 *Example*: misspeled word
 Try correcting the word with =M-$= which calls =ispell-word=.
