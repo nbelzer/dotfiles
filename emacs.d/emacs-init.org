@@ -128,29 +128,20 @@ when I see an opportunity to improve ergonomics. I feel like this is
 extremely important for someone who spends a lot of time on a computer.
 
 ** Control & Meta Rebinding
-One of the primary keys used in Emacs is =C= (control) together with the
-=M= (meta) key. I'm not a fan of using the actual control button on the
-keyboard as it requires a lot of use of the pinky finger. Therefore I remap
-this key the =CMD= (command) key which can be pressed by the stronger
-thumb. The meta key is triggered by =ESC= which is bound to my =Caps
-Lock= key using the macOS keyboard preferences. I add an additional
-trigger for the meta key on the right command for when I'm using my mac
-based keyboard.
+One of the primary keys used in Emacs is =C= (control) together with the =M= (meta) key. I'm not a fan of using the actual control button on the keyboard as it requires a lot of use of the pinky finger. Therefore I remap this key the =CMD= (command) key which can be pressed by the stronger thumb. The meta key is triggered by =ESC= which is bound to my =Caps Lock= key using the macOS keyboard preferences. I add an additional trigger for the meta key on the right command for when I'm using my mac based keyboard.
 
 Based on these resources:
  - [[https://nickdrozd.github.io/2019/12/28/emacs-mac-mods.html][Modified Emacs Mac Modifiers]]
  - [[https://www.reddit.com/r/emacs/comments/91qz7l/mac_emacs_and_hyper_key/][Reddit Discussion on Hyper key]]
 
 #+BEGIN_SRC emacs-lisp
-  (when (eq system-type 'darwin)
-    (setq ns-command-modifier 'control
-          ns-option-modifier 'meta
-          ns-right-command-modifier 'meta))
+(when (eq system-type 'darwin)
+   (setq ns-command-modifier 'control)
+   (setq ns-control-modifier 'meta))
 #+END_SRC
 
 ** Default keys
-Binding =C= to my command key does clash with some default macOS
-commands like cut, paste or undo. So these need new bindings.
+Binding =C= to my command key does clash with some default macOS commands like cut, paste or undo. So these need new bindings.
 
 *** Kill region or line
 I rebind the =C-k= shortcut to either kill-line if nothing is selected
@@ -221,19 +212,16 @@ To be able to jump through =camelCase= words when programming I enable
 #+END_SRC
 
 *** Window Navigation
-To easily navigate between different buffers I've set up some keyboard
-shortcuts.
-
+To easily navigate between different buffers I've set up some keyboard shortcuts.
 #+BEGIN_SRC emacs-lisp
-  (use-package window
-    :bind (("C-;" . next-buffer)
-           ("C-." . previous-buffer)
-           ("C-o" . other-window)
-           ("C-w" . kill-current-buffer)))
+(use-package emacs
+  :bind (("C-'" . next-buffer)
+         ("C-." . previous-buffer)
+         ("C-o" . other-window)
+         ("C-w" . kill-current-buffer)))
 #+END_SRC
 
 In addition to keybindings for buffer navigation it useful to have Emacs highlight the cursor position upon switching buffers. This is exactly what [[https://github.com/Malabarba/beacon][beacon]] does.
-
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
   :defer t
@@ -242,7 +230,6 @@ In addition to keybindings for buffer navigation it useful to have Emacs highlig
   (setq beacon-color "#E9D5FF")
   (setq beacon-size 30))
 #+END_SRC
-
 
 ** Which-key
 [[https://github.com/justbur/emacs-which-key][which-key]] provides hints for which keys can be pressed given a certain
@@ -314,7 +301,7 @@ The tab bar (Emacs 27+) allows the different workspace layouts per tab. This is 
 (use-package emacs
   :custom
   ; Always hide the Tab Bar (as it is not enabled for macOS).
-  (tab-bar-show nil))
+  (tab-bar-show f))
 #+END_SRC
 
 I set up a custom keymap, given the prefix =C-,= for navigation of tabs and buffers. There is no explicit reason for the use of this prefix.
@@ -964,7 +951,7 @@ action on agenda files.
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
   :bind (:map org-mode-map
-              ("C-," . nil)))
+              ("C-'" . nil)))
 #+END_SRC
 
 ** Content
