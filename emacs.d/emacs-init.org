@@ -532,6 +532,30 @@ tweaks make it even better:
 #+END_SRC
 
 * macOS Specific
+** Emoji Support
+As defined by [[https://github.crookster.org/emacs27-from-homebrew-on-macos-with-emoji/][David Crook]] this snippet allows the use of Emojis in Emacs 🚀.
+
+#+BEGIN_SRC emacs-lisp
+;;; Useful for https://github.com/dunn/company-emoji
+;; https://www.reddit.com/r/emacs/comments/8ph0hq/i_have_converted_from_the_mac_port_to_the_ns_port/
+;; not tested with emacs26 (requires a patched Emacs version for
+;; multi-color font support)
+(if (version< "27.0" emacs-version)
+    (set-fontset-font
+     "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
+  (set-fontset-font
+   t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend))
+
+(use-package company-emoji
+  :init
+  (defun remove-company-emoji ()
+    (make-local-variable 'company-backends)
+    (setq company-backends (delete 'company-emoji company-backends)))
+  :custom
+  (company-emoji-insert-unicode nil)
+  :hook
+  (python-mode-hook . remove-company-emoji))
+#+END_SRC
 ** Fix folder access
 When using the default Emacs cask from brew on macOS 11 I ran in to some
 problems with respect to accessing iCloud folders. The issue could not
