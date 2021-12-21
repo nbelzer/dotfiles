@@ -704,8 +704,7 @@ Some defaults I like to apply in programming mode:
 #+END_SRC
 
 ** Language Server Protocol (LSP)
-The language server protocol opens Emacs up to simple code comprehension
-and autocomplete features such as:
+The language server protocol opens Emacs up to simple code comprehension and autocomplete features such as:
  + Clever autocomplete (based on types)
  + Find references/definitions
  + Clever renaming
@@ -715,19 +714,25 @@ and autocomplete features such as:
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
 (use-package lsp-mode
-    :defer t
-    :ensure t
-    :custom
-    ; Set flycheck as the default diagnostic package.
-    (lsp-diagnostic-package :flycheck)
-    ; Disable the modeline diagnostics.
-    (lsp-modeline-diagnostics-enable nil)
-    ; Disable headerline with breadcrumbs.
-    (lsp-headerline-breadcrumb-enable nil)
-    ; Make sure that we always call lsp-deferred to avoid long
-    ; periods of unresponsiveness.
-    :commands (lsp lsp-deferred)
-    :hook ((ruby-mode-hook . lsp)))
+  :ensure t
+  :defer t
+  :init
+  ; Inform lsp-mode about what language is used in an .html.erb file.
+  (with-eval-after-load 'lsp-mode
+    (add-to-list 'lsp-language-id-configuration
+                 '(".*\\.html?.erb$" . "html")))
+  :custom
+  ; Set flycheck as the default diagnostic package.
+  (lsp-diagnostic-package :flycheck)
+  ; Disable the modeline diagnostics.
+  (lsp-modeline-diagnostics-enable nil)
+  ; Disable headerline with breadcrumbs.
+  (lsp-headerline-breadcrumb-enable nil)
+  ; Make sure that we always call lsp-deferred to avoid long
+  ; periods of unresponsiveness.
+  :commands (lsp lsp-deferred)
+  :hook ((ruby-mode-hook . lsp)
+           (web-mode-hook . lsp)))
 #+END_SRC
 
 *** Ruby
@@ -968,6 +973,15 @@ most popular package for this.
   :ensure t
   :mode ("\\.html?\\'" "\\.svelte\\'" "\\.erb\\'" "\\.antlers\\'" "\\.php\\'"))
 #+END_SRC
+** CSS
+I often use [[https://tailwindcss.com][TailwindCSS]] as the main library to write my HTML styling in, TailwindCSS offers a language server that I can hook into =lsp-mode= using a package by [[https://github.com/merrickluo/][merrickluo]], named [[https://github.com/merrickluo/lsp-tailwindcss][lsp-tailwindcss]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-tailwindcss
+  :ensure t)
+#+END_SRC
+
+In addition to this we need to run =M-x lsp-install-server=, then select =tailwindcss=.
 
 * Org mode
 ** Keybindings
