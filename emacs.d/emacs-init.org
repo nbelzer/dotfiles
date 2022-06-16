@@ -348,9 +348,9 @@ Next to this I am using a custom font for =variable-pitch= as this allows me to 
   (set-face-attribute 'org-date nil :font "Iosevka Fixed-14")
   (set-face-attribute 'org-meta-line nil :font "Iosevka Fixed-14")
   (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-14")
-  (set-face-attribute 'org-level-1 nil :font "SF Pro Display-15" :weight 'bold)
-  (set-face-attribute 'org-level-2 nil :font "SF Pro Display-15" :weight 'bold)
-  (set-face-attribute 'org-level-3 nil :font "SF Pro Display-15" :weight 'bold)
+  (set-face-attribute 'org-level-1 nil :font "Iosevka Aile-15" :weight 'bold)
+  (set-face-attribute 'org-level-2 nil :font "Iosevka Aile-15" :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :font "Iosevka Aile-15" :weight 'bold)
   ; Enable variable pitch mode in org and markdown buffers.
   :hook ((org-mode-hook . variable-pitch-mode)
          (markdown-mode-hook . variable-pitch-mode)))
