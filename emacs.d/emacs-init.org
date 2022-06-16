@@ -1164,7 +1164,7 @@ seem to be in the required concise-ness of the notes. An explanation or thought 
   (setq org-roam-v2-ack t)
   (org-roam-db-autosync-mode)
   :custom
-  (org-roam-directory "~/org/slip-box/")
+  (org-roam-directory "~/Documents/org/slip-box/")
   :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
