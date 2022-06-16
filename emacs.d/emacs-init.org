@@ -592,14 +592,6 @@ in the terminal. This is fixed by the [[https://github.com/purcell/exec-path-fro
     :init
     (exec-path-from-shell-initialize))
 #+END_SRC
-* Terminal
-After trying out =ansi-term= for a while I found that it acts a little strange from time to time with my spaceship prompt. Now I'm using =vterm=.
-
-#+BEGIN_SRC emacs-lisp
-(use-package vterm
-  :defer t
-  :ensure t)
-#+END_SRC
 * Ivy, Counsel, Prescient and Ivy-rich
 [[https://github.com/abo-abo/swiper][Ivy]] is a generic completion mechanism for emacs, I use it to enhance the
 minibuffer experience. Counsel is used to remap default built-in Emacs
