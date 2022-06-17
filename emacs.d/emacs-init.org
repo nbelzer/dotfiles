@@ -348,6 +348,7 @@ Next to this I am using a custom font for =variable-pitch= as this allows me to 
   (set-face-attribute 'org-date nil :font "Iosevka Comfy-14")
   (set-face-attribute 'org-meta-line nil :font "Iosevka Comfy-14")
   (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-14")
+  (set-face-attribute 'font-lock-comment-face nil :font "Iosevka Aile-14")
   (set-face-attribute 'org-level-1 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-2 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-3 nil :font "Iosevka Aile-15" :weight 'bold)
@@ -377,6 +378,14 @@ and great accessibility. By default I load the light theme.
 (use-package modus-themes
   :ensure
   :init
+  (setq modus-themes-subtle-line-numbers t
+        ; make use of italics throughout the theme, such as docstrings.
+        modus-themes-italic-constructs t
+        ; make sure that code blocks are highlighted with a gray background.
+        modus-themes-org-blocks 'gray-background
+        ; make sure that some constructs like org-tables always use 'fixed-pitch font.
+        modus-themes-mixed-fonts t)
+
   (modus-themes-load-themes)
   :config
   (modus-themes-load-operandi))
