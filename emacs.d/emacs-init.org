@@ -693,6 +693,20 @@ programming languages out of the box.
     :hook (flycheck-mode-hook . flycheck-indicator-mode))
 #+END_SRC
 
+** Formatting
+Code formatting is done using many different tools, [[https://github.com/lassik/emacs-format-all-the-code][format-all]] is a package that tries to be the middleman and call the right formatter for the right file.
+
+The package will automatically install the right tool (upon confirmation) if the tool cannot be found.  If there are multiple tools available you can use the =.dir-locals.el= to set a preferred tool for a specific folder or project.
+
++ I opened [[https://github.com/lassik/emacs-format-all-the-code/pull/193][a PR]] that includes the required changes to support =.erb= files.
+
+#+BEGIN_SRC emacs-lisp
+(use-package format-all
+  :ensure t
+  ; Enable format on save when in prog-mode.
+  :hook (prog-mode-hook . format-all-mode))
+#+END_SRC
+
 ** Programming mode
 Some defaults I like to apply in programming mode:
 +  Show line numbers in a prettified format.
