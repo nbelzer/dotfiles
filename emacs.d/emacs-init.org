@@ -709,12 +709,8 @@ The package will automatically install the right tool (upon confirmation) if the
 
 ** Programming mode
 Some defaults I like to apply in programming mode:
-+  Show line numbers in a prettified format.
-
 #+BEGIN_SRC emacs-lisp
   (use-package emacs
-     :custom
-     (linum-format "%3d ")
      :hook (prog-mode-hook . display-line-numbers-mode))
 #+END_SRC
 
