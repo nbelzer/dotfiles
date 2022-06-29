@@ -887,15 +887,74 @@ or dap-mode.
 As my git client I use the amazing magit.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :defer t
-    :ensure t
-    :custom
-    ; Show fine differences for the current diff hunk only, used to
-    ; minimize space used on screen.
-    (magit-diff-refine-hunk t)
-    :bind (("C-c g" . magit-status)))
+(use-package magit
+  :defer t
+  :ensure t
+  :custom
+  ; Show fine differences for the current diff hunk only, used to
+  ; minimize space used on screen.
+  (magit-diff-refine-hunk t)
+  :bind (("C-c g" . magit-status)))
 #+END_SRC
+
+*** Signing commits
+#+BEGIN_SRC emacs-lisp
+; Always start pinentry on emacs boot.
+(setq epg-pinentry-mode 'loopback)
+(pinentry-start)
+#+END_SRC
+
+I've summarised the steps to setup commit signing on macOS.
+#+BEGIN_EXAMPLE bash
+# You might have to install gnupg
+brew install gnupg
+
+# Follow the steps to generate key, set a strong password.
+gpg --full-generate-key
+#+END_EXAMPLE
+
+Add the following snippet to =~/.gnupg/gpg-agent.conf=:
+#+BEGIN_EXAMPLE conf
+# Connects gpg-agent to the OSX keychain via the brew-installed
+# pinentry program from GPGtools. This is the OSX 'magic sauce',
+# allowing the gpg key's passphrase to be stored in the login
+# keychain, enabling automatic key signing.
+allow-emacs-pinentry
+allow-loopback-pinentry
+#+END_EXAMPLE
+
+Now test your setup:
+#+BEGIN_EXAMPLE bash
+echo "test" | gpg --clearsign
+#+END_EXAMPLE
+
+If all works you should [[https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-new-gpg-key-to-your-github-account][add your key to GitHub]] and setup git to use your key for signing commits:
+#+BEGIN_EXAMPLE bash
+# Set git to always sign your commits, leave out the `--global` if
+# you only want to apply the setting to your local repo.
+git config --global commit.gpgsign true
+
+# List your gpg keys to find the key to use:
+gpg --list-secret-keys
+# The output should look something like this:
+#
+#   sec   rsa2048 2019-01-15 [SC]
+#         YOUR_GPG_KEY_APPEARS_HERE
+#   uid           [ultimate] Your Name <your@email.here>
+#   ssb   rsa2048 2019-01-15 [E]
+
+# Set that key as your users signingkey.
+git config --global user.signingkey YOUR_GPG_KEY
+#+END_EXAMPLE
+
+You might have to restart the gpg-agent if it is not working right away:
+#+BEGIN_EXAMPLE bash
+# Kill gpg-agent
+killall gpg-agent
+
+# Run gpg-agent in daemon mode
+gpg-agent --daemon
+#+END_EXAMPLE
 
 ** Zen mode
 I prefer to have a simplified mode where the content on my screen is in
