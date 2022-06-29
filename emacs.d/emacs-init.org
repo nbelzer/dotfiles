@@ -765,8 +765,19 @@ In addition to Solargraph support through LSP we can improve our experience with
 (use-package ruby-test-mode
   :defer t
   :ensure t
-  :hook ((ruby-mode-hook . ruby-test-mode)
+  :hook ((enh-ruby-mode-hook . ruby-test-mode)
          ('compilation-finish-functions . switch-to-test-buffer)))
+
+(use-package enh-ruby-mode
+  :defer t
+  :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.rb\\'" . enh-ruby-mode))
+  (add-to-list 'interpreter-mode-alist '("ruby" .enh-ruby-mode)))
+
+; Disable the use of specific faces defined by enh-ruby-mode as it
+; interferes with variable pitch mode.
+(remove-hook 'enh-ruby-mode-hook 'erm-define-faces)
 #+END_SRC
 *** Python
 Python can work using the =pyls= which needs to be installed using
