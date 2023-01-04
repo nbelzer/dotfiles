@@ -348,7 +348,7 @@ Next to this I am using a custom font for =variable-pitch= as this allows me to 
   (set-face-attribute 'org-date nil :font "Iosevka Comfy-14")
   (set-face-attribute 'org-meta-line nil :font "Iosevka Comfy-14")
   (set-face-attribute 'variable-pitch nil :font "Iosevka Aile-14")
-  (set-face-attribute 'font-lock-comment-face nil :font "Iosevka Aile-14")
+  (set-face-attribute 'font-lock-comment-face nil :font "Cascadia Code-14" :weight 'semi-light :slant 'italic)
   (set-face-attribute 'org-level-1 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-2 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-3 nil :font "Iosevka Aile-15" :weight 'bold)
