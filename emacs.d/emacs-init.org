@@ -1052,6 +1052,9 @@ most popular package for this.
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :ensure t
+  :init
+  ; Set default HTML indent to 2 spaces.
+  (setq web-mode-markup-indent-offset 2)
   :mode ("\\.html?\\'" "\\.svelte\\'" "\\.erb\\'" "\\.antlers\\'" "\\.php\\'"))
 #+END_SRC
 ** CSS
