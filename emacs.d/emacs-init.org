@@ -334,13 +334,12 @@ I use the Jetbrains Mono font as a default for Emacs. Default size of 15 as I pr
 Next to this I am using a custom font for =variable-pitch= as this allows me to have a normal spaced font for text in org mode buffers. This is based on [[https://www.youtube.com/watch?v=Oiu3LFK_rX8][this video from protesilaos]]. To make this work correctly with inline code the font sizes should be tested an relatively similar. It is possible that the behaviour does not work with your theme. If you are encountering issues try using the modus themes from Protesilaos.
 
 #+BEGIN_SRC emacs-lisp
-(use-package emacs
-  :custom
-  (x-underline-at-descent-line t)
-  (underline-minimum-offset 1)
+(defun nbelzer/set-face-attributes ()
+  "Abstracted into a function to avoid duplication in the emacs config."
+  (customize-set-variable 'x-underline-at-descent-line t)
+  (customize-set-variable 'underline-minimum-offset 0)
   ; Use a slightly more relaxed line height to ease display.
-  (line-spacing 0.4)
-  :config
+  (customize-set-variable 'line-spacing 0.4)
   (set-face-attribute 'default nil :font "Iosevka Comfy-15")
   (set-face-attribute 'fixed-pitch nil :font "Iosevka Comfy-15")
   (set-face-attribute 'org-block nil :font "Iosevka Comfy-15")
@@ -351,7 +350,11 @@ Next to this I am using a custom font for =variable-pitch= as this allows me to 
   (set-face-attribute 'font-lock-comment-face nil :font "Cascadia Code-15" :weight 'semi-light :slant 'italic)
   (set-face-attribute 'org-level-1 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-2 nil :font "Iosevka Aile-15" :weight 'bold)
-  (set-face-attribute 'org-level-3 nil :font "Iosevka Aile-15" :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :font "Iosevka Aile-15" :weight 'bold))
+
+(use-package emacs
+  :config
+  (nbelzer/set-face-attributes)
   ; Enable variable pitch mode in org and markdown buffers.
   :hook ((org-mode-hook . variable-pitch-mode)
          (markdown-mode-hook . variable-pitch-mode)))
@@ -371,31 +374,22 @@ Highlight paratheses with no delay.
 #+END_SRC
 
 *** Theme
-I use the [[https://gitlab.com/protesilaos/modus-themes][modus-themes]] from Protesilaos Stavrou for their compatibility
-and great accessibility. By default I load the light theme.
+I used to use the [[https://gitlab.com/protesilaos/modus-themes][modus-themes]] from Protesilaos Stavrou for their compatibility and great accessibility.  However Protesilaos Stavrou recently released the [[https://protesilaos.com/emacs/ef-themes][ef-themes]] which include a great set of dark/night themes with a little more color.  Currently I am using =ef-day= and =ef-autumn= for light and dark mode respectively.
 
 #+BEGIN_SRC emacs-lisp
-(use-package modus-themes
-  :ensure
-  :init
-  (setq modus-themes-subtle-line-numbers t
-        ; make use of italics throughout the theme, such as docstrings.
-        modus-themes-italic-constructs t
-        ; make sure that code blocks are highlighted with a gray background.
-        modus-themes-org-blocks 'gray-background
-        ; make sure that some constructs like org-tables always use 'fixed-pitch font.
-        modus-themes-mixed-fonts t)
-
-  (modus-themes-load-themes)
-  :config
-  (modus-themes-load-operandi))
-
 (defun nbelzer/apply-theme (appearance)
   "Load these, taking current system APPEARANCE into consideration."
   (mapc #'disable-theme custom-enabled-themes)
-  (pcase appearance
-    ('light (load-theme 'modus-operandi t))
-    ('dark (load-theme 'modus-vivendi t))))
+  ; Load a random theme based on the appearance ('light or 'dark).
+  (ef-themes-load-random appearance)
+  ; Use the custom function to override some face attributes.
+  (nbelzer/set-face-attributes))
+
+(use-package ef-themes
+  :config
+  ; Set a dark theme by default.
+  (nbelzer/apply-theme 'dark))
+
 
 (add-hook 'ns-system-appearance-change-functions #'nbelzer/apply-theme)
 #+END_SRC
@@ -1450,12 +1444,12 @@ functionality. These functions are prefixed with =nbelzer/=.
 (defun nbelzer/enable-light-theme ()
   "Enables my preferred light theme."
   (interactive)
-  (load-theme 'modus-operandi t))
+  (nbelzer/apply-theme 'light))
 
 (defun nbelzer/enable-dark-theme ()
   "Enables my preferred dark theme."
   (interactive)
-  (load-theme 'modus-vivendi t))
+  (nbelzer/apply-theme 'dark))
 
 (defun nbelzer/open-emacs-config ()
   "Opens my emacs configuration file."
