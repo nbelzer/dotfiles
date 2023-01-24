@@ -1241,6 +1241,12 @@ don't think this is neccesary so  I disabled it.
   (org-babel-execute:lisp))
 #+END_SRC
 
+Allow usage of ruby code blocks in org src blocks.  Switch between functional mode and scripting mode by including =:results output= in the block definition.
+
+#+BEGIN_SRC emacs-lisp
+(require 'ob-ruby)
+#+END_SRC
+
 ** Latex
 To support latex code we need to install both Latex and dvipng. Both can be done through the following commands on macOS.
 
