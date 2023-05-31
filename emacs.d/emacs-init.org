@@ -91,9 +91,7 @@ of it."
     (org-babel-tangle-file init-org init-el)
     (byte-compile-file init-el)))
 
-(use-package emacs
-  :config
-  :hook ((kill-emacs-hook . prot/rebuild-emacs-init)))
+(add-hook 'kill-emacs-hook #'prot/rebuild-emacs-init)
 #+END_SRC
 ** Where I run Emacs
 I run Emacs on macOS as I use a mac as my day-to-day system. Therefore
