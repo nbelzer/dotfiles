@@ -686,6 +686,12 @@ programming languages out of the box.
     :after flycheck
     :hook (flycheck-mode-hook . flycheck-indicator-mode))
 #+END_SRC
+** Documentation
+To be able to save and read documentation offline, within emacs, we can use the devdocs package.  It can search through documentation on [[https://devdocs.io][devdocs.io]] and can even download it to accessible offline.
+#+BEGIN_SRC emacs-lisp
+(use-package devdocs
+  :ensure t)
+#+END_SRC
 
 ** Formatting
 Code formatting is done using many different tools, [[https://github.com/lassik/emacs-format-all-the-code][format-all]] is a package that tries to be the middleman and call the right formatter for the right file.
