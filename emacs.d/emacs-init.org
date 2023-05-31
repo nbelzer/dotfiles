@@ -1107,6 +1107,17 @@ Additionally, line number mode is enabled."
 
 (add-hook 'git-commit-setup-hook 'insert-pair-programmer-as-coauthor)
 #+END_SRC
+** Copilot
+Experimental addition of [[https://github.com/features/copilot][Github Copilot]] into Emacs, seems quite useful.
+
+#+BEGIN_SRC emacs-lisp
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+  :ensure t
+  :hook
+  (prog-mode-hook copilot-mode)
+)
+#+END_SRC
 
 * Org mode
 ** Keybindings
