@@ -1236,12 +1236,12 @@ don't think this is neccesary so  I disabled it.
 #+BEGIN_SRC emacs-lisp
 (use-package ob-python
   :defer t
-  :ensure org-plus-contrib
+  :ensure org-contrib
   :commands (org-babel-execute:python))
 
 (use-package ob-sqlite
   :defer t
-  :ensure org-plus-contrib
+  :ensure org-contrib
   :commands
   (org-babel-execute:sqlite
    org-babel-expand-body:sqlite))
