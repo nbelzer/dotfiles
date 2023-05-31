@@ -216,7 +216,9 @@ To easily navigate between different buffers I've set up some keyboard shortcuts
   :bind (("C-'" . next-buffer)
          ("C-." . previous-buffer)
          ("C-o" . other-window)
-         ("C-w" . kill-current-buffer)))
+         ("C-w" . kill-current-buffer)
+         ("C-, s h" . split-window-horizontally)
+         ("C-, s v" . split-window-vertically)))
 #+END_SRC
 
 In addition to keybindings for buffer navigation it useful to have Emacs highlight the cursor position upon switching buffers. This is exactly what [[https://github.com/Malabarba/beacon][beacon]] does.
