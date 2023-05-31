@@ -741,9 +741,7 @@ The language server protocol opens Emacs up to simple code comprehension and aut
   (lsp-headerline-breadcrumb-enable nil)
   ; Make sure that we always call lsp-deferred to avoid long
   ; periods of unresponsiveness.
-  :commands (lsp lsp-deferred)
-  :hook ((ruby-mode-hook . lsp)
-           (web-mode-hook . lsp)))
+  :commands (lsp lsp-deferred))
 #+END_SRC
 
 *** Ruby
