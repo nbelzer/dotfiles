@@ -777,6 +777,37 @@ In addition to Solargraph support through LSP we can improve our experience with
 ; interferes with variable pitch mode.
 (remove-hook 'enh-ruby-mode-hook 'erm-define-faces)
 #+END_SRC
+
+**** Search through gems
+Here I've set up a command that allows me to search all project related gems for a specific string.
+
+#+BEGIN_SRC elisp
+(defun fetch-gem-paths ()
+  "Fetch paths of all the gems in the current project."
+  (let ((default-directory (locate-dominating-file default-directory "Gemfile")))
+    (when default-directory
+      (with-temp-buffer
+        (call-process-shell-command "bundle show --paths" nil t)
+        (split-string (buffer-string) "\n")))))
+
+(defun grep-gems (search-term)
+  "Grep through all installed gems in the current project."
+  (interactive (list (read-string (format "Enter search term (default '%s'): " (or (thing-at-point 'sexp) ""))
+                                  nil nil (thing-at-point 'sexp))))
+  (let* ((gem-paths (fetch-gem-paths))
+         (grep-command (concat "grep -rn "
+                               (shell-quote-argument search-term)
+                               " "
+                               (mapconcat 'identity gem-paths " "))))
+    (grep grep-command)
+    (with-current-buffer "*grep*"
+      ; The first 4 lines are used to display the grep command.
+      (goto-line 5)
+      (narrow-to-region (point) (point-max)))))
+
+(global-set-key (kbd "C-c C-g") 'grep-gems)
+#+END_SRC
+
 *** Python
 Python can work using the =pyls= which needs to be installed using
 pip. By default we start lsp when opening python mode.
