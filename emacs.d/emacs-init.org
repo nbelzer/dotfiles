@@ -707,13 +707,6 @@ The package will automatically install the right tool (upon confirmation) if the
   :hook (prog-mode-hook . format-all-mode))
 #+END_SRC
 
-** Programming mode
-Some defaults I like to apply in programming mode:
-#+BEGIN_SRC emacs-lisp
-  (use-package emacs
-     :hook (prog-mode-hook . display-line-numbers-mode))
-#+END_SRC
-
 ** Language Server Protocol (LSP)
 The language server protocol opens Emacs up to simple code comprehension and autocomplete features such as:
  + Clever autocomplete (based on types)
@@ -742,6 +735,18 @@ The language server protocol opens Emacs up to simple code comprehension and aut
   ; Make sure that we always call lsp-deferred to avoid long
   ; periods of unresponsiveness.
   :commands (lsp lsp-deferred))
+#+END_SRC
+
+** Programming mode
+Some defaults I like to apply in programming mode:
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+     :hook (prog-mode-hook . display-line-numbers-mode))
+#+END_SRC
+
+*** JavaScript
+#+BEGIN_SRC emacs-lisp
+(setq js-indent-level 2)
 #+END_SRC
 
 *** Ruby
