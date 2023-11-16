@@ -483,6 +483,7 @@ I want Emacs to help me keep focus of the cursor when scrolling.
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
   :custom
+  (pixel-scroll-precision-mode 1)
   ; Preserve the screen position as much as possible during scrolling.
   (scroll-preserve-screen-position 1)
   (scroll-step 2)
