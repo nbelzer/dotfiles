@@ -255,6 +255,15 @@ keybindings as a beginner.
     ; option
     (which-key-mode 1))
 #+END_SRC
+
+** Keycast
+I use keycast to quickly surface the names of the functions bound to the keys I use.
+
+#+BEGIN_SRC emacs-lisp
+(use-package keycast
+  :config
+  (keycast-mode-line-mode 1))
+#+END_SRC
 * Emacs configuration
 ** Window
 *** Disable GUI components
