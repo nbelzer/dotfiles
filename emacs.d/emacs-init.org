@@ -963,6 +963,16 @@ As my git client I use the amazing magit.
   :bind (("C-c g" . magit-status)))
 #+END_SRC
 
+*** Forge
+Forge is an addition on top of magit that interacts with git forges such as GitHub.
+#+BEGIN_SRC emacs-lisp
+; Instruct forge to use `~/.authinfo` to fetch the api token.
+(setq auth-sources '("~/.authinfo"))
+
+(use-package forge
+  :after magit)
+#+END_SRC
+
 *** Signing commits
 #+BEGIN_SRC emacs-lisp
 ; Always start pinentry on emacs boot.
