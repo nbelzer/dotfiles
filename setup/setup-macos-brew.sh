@@ -5,23 +5,14 @@
 brew upgrade
 
 # CLI Tools
-brew install git lftp
-brew install nodenv rbenv
-brew install minimal-racket
+brew install git
 
 # Casks
-brew install --cask 1password
-brew install --cask iterm2
-brew install --cask discord
-brew install --cask firefox
-brew install --cask transmission
-brew install --cask figma
-brew install --cask visual-studio-code
-brew install --cask basictex
+brew install --cask 1password iterm2 visual-studio-code
 
 # Fonts
 brew tap homebrew/cask-fonts
-brew install --cask font-iosevka font-iosevka-aile
+brew install --cask font-iosevka font-iosevka-aile font-cascadia-code
 
 # Emacs
 brew tap d12frosted/emacs-plus
