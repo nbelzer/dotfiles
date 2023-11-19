@@ -799,6 +799,18 @@ In addition to Solargraph support through LSP we can improve our experience with
   (add-to-list 'auto-mode-alist '("\\.rb\\'" . enh-ruby-mode))
   (add-to-list 'interpreter-mode-alist '("ruby" .enh-ruby-mode)))
 
+(defun nbelzer/ruby-hash-to-fat-arrow ()
+  "Replace all instances of `word:` with `\"word\" =>` in the current selection."
+  (interactive)
+  (if (use-region-p)
+      (let ((start (region-beginning))
+            (end (region-end)))
+        (save-excursion
+          (goto-char start)
+          (while (re-search-forward "\\([a-z|_]+\\):" end t)
+            (replace-match "\"\\1\" =>"))))
+    (message "No region selected.")))
+
 ; Disable the use of specific faces defined by enh-ruby-mode as it
 ; interferes with variable pitch mode.
 (remove-hook 'enh-ruby-mode-hook 'erm-define-faces)
