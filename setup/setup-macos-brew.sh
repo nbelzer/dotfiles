@@ -5,7 +5,11 @@
 brew upgrade
 
 # CLI Tools
-brew install git direnv
+brew install git direnv asdf ruby-build
+
+# Asdf plugins
+asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
+asdf plugin add bun
 
 # Casks
 brew install --cask 1password iterm2 visual-studio-code
