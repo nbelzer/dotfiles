@@ -5,7 +5,7 @@
 brew upgrade
 
 # CLI Tools
-brew install git
+brew install git direnv
 
 # Casks
 brew install --cask 1password iterm2 visual-studio-code
