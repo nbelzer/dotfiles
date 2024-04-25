@@ -376,6 +376,7 @@ Next to this I am using a custom font for =variable-pitch= as this allows me to 
   (set-face-attribute 'org-level-1 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-2 nil :font "Iosevka Aile-15" :weight 'bold)
   (set-face-attribute 'org-level-3 nil :font "Iosevka Aile-15" :weight 'bold))
+  )
 
 (use-package emacs
   :config
@@ -407,8 +408,11 @@ I used to use the [[https://gitlab.com/protesilaos/modus-themes][modus-themes]] 
   (mapc #'disable-theme custom-enabled-themes)
   ; Load a random theme based on the appearance ('light or 'dark).
   (ef-themes-load-random appearance)
+  ; For a transparent tool-bar we should  always set the 'scroll-bar colour to transparent.
+  (set-face-background 'scroll-bar "transparent")
   ; Use the custom function to override some face attributes.
-  (nbelzer/set-face-attributes))
+  (nbelzer/set-face-attributes)
+)
 
 (use-package ef-themes
   :config
