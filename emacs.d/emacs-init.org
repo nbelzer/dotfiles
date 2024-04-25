@@ -442,7 +442,7 @@ editors. This makes the appearence of text and code similar.
     ; First try to indent the current line, then use tab to complete at
     ; point.
     (setq-default tab-always-indent 'complete)
-    (setq-default tab-width 4)
+    (setq-default tab-width 2)
     ; Use spaces over tabs.
     (setq-default indent-tabs-mode nil))
 #+END_SRC
