@@ -495,6 +495,21 @@ I want Emacs to help me keep focus of the cursor when scrolling.
   (scroll-margin 2))
 #+END_SRC
 
+When using emacs-mac scrolling with a high-speed device, like the Macbook Trackpad can be tricky, this package improves the scroll handling.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ultra-scroll-mac
+    :straight (ultra-scroll-mac :type git
+                                :host github
+                                :repo "jdtsmith/ultra-scroll-mac")
+    :if (eq window-system 'mac)
+    :init
+    (setq scroll-conservatively 101 ; important for jumbo images
+          scroll-margin 0)
+    :config
+    (ultra-scroll-mac-mode 1))
+#+END_SRC
+
 ** Backups
 As outlined by [[https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files][ymf3 in this stackoverflow thread]] Emacs backups are
 great, however it is not so great when they are in the way or clutter
