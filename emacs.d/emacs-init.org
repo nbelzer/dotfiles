@@ -301,6 +301,7 @@ elements such as: =use-file-dialog=, =menu-bar-mode=, and
   ; Disable the menu-bar.
   (menu-bar-mode -1)
   ; Disable to the tool-bar.
+  (tool-bar-mode)
   (tool-bar-mode -1)
   ; Disable scroll bars.
   (scroll-bar-mode -1)
