@@ -134,8 +134,12 @@ Based on these resources:
 
 #+BEGIN_SRC emacs-lisp
 (when (eq system-type 'darwin)
-   (setq ns-command-modifier 'control)
-   (setq ns-control-modifier 'meta))
+  ; On emacs-plus
+  ; (setq ns-command-modifier 'control)
+  ; (setq ns-control-modifier 'meta)
+  ; With emacs-mac
+  (setq mac-command-modifier 'control)
+  (setq mac-control-modifier 'meta))
 #+END_SRC
 
 ** Default keys
