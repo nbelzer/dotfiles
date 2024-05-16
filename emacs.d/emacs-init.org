@@ -268,6 +268,13 @@ I use keycast to quickly surface the names of the functions bound to the keys I 
   :config
   (keycast-mode-line-mode 1))
 #+END_SRC
+
+** Disable mouse-wheel-scroll
+#+BEGIN_SRC  emacs-lisp
+(global-unset-key [C-wheel-down])  ; Unbind Control + mouse wheel up
+(global-unset-key [C-wheel-up])  ; Unbind Control + mouse wheel down
+#+END_SRC
+
 * Emacs configuration
 ** Window
 *** Disable GUI components
