@@ -752,34 +752,61 @@ The package will automatically install the right tool (upon confirmation) if the
   :hook (prog-mode-hook . format-all-mode))
 #+END_SRC
 
-** Language Server Protocol (LSP)
-The language server protocol opens Emacs up to simple code comprehension and autocomplete features such as:
- + Clever autocomplete (based on types)
- + Find references/definitions
- + Clever renaming
+** Treesitter
+Automatically load the `-ts-mode` if we have the grammar installed.
+#+BEGIN_SRC emacs-lisp
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
+#+END_SRC
+
+Fixed as outlined by [[https://genehack.blog/2024/02/fixing-an-emacs-typescript-ts-mode-problem/][this blog post]] to pin the tree-sitter grammar for typescript to v0.20.3 (for the time being) as it causes errors with eglot otherwise.
+#+BEGIN_SRC emacs-lisp
+(use-package treesit-auto
+  :custom
+  (defvar genehack/tsx-treesit-auto-recipe
+    (make-treesit-auto-recipe
+     :lang 'tsx
+     :ts-mode 'tsx-ts-mode
+     :remap '(typescript-tsx-mode)
+     :requires 'typescript
+     :url "https://github.com/tree-sitter/tree-sitter-typescript"
+     :revision "v0.20.3"
+     :source-dir "tsx/src"
+     :ext "\\.tsx\\'")
+    "Recipe for libtree-sitter-tsx.dylib")
+  (add-to-list 'treesit-auto-recipe-list genehack/tsx-treesit-auto-recipe)
+
+  (defvar genehack/typescript-treesit-auto-recipe
+    (make-treesit-auto-recipe
+     :lang 'typescript
+     :ts-mode 'typescript-ts-mode
+     :remap 'typescript-mode
+     :requires 'tsx
+     :url "https://github.com/tree-sitter/tree-sitter-typescript"
+     :revision "v0.20.3"
+     :source-dir "typescript/src"
+     :ext "\\.ts\\'")
+    "Recipe for libtree-sitter-typescript.dylib")
+  (add-to-list 'treesit-auto-recipe-list genehack/typescript-treesit-auto-recipe)
+)
+#+END_SRC
+
+** Eglot (Language Server)
+Emacs comes with Eglot installed so I am opting to use it over lsp-mode.  Usage of the language server protocol allows us to perform operations with more context about the application and language we are using, like:
++ Type based autocomplete,
++ Find code references or definitions,
++ Smart renaming, and more.
+
+Once enabled eglot configures itself for all files part of a [[https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects][project]] (as defined by Emacs itself).
 
 #+BEGIN_SRC emacs-lisp
-; Should increase the amount of data emacs can read from processes to support larger language server responses.
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
-
-(use-package lsp-mode
+(use-package eglot
   :ensure t
-  :defer t
-  :init
-  ; Inform lsp-mode about what language is used in an .html.erb file.
-  (with-eval-after-load 'lsp-mode
-    (add-to-list 'lsp-language-id-configuration
-                 '(".*\\.html?.erb$" . "html")))
-  :custom
-  ; Set flycheck as the default diagnostic package.
-  (lsp-diagnostic-package :flycheck)
-  ; Disable the modeline diagnostics.
-  (lsp-modeline-diagnostics-enable nil)
-  ; Disable headerline with breadcrumbs.
-  (lsp-headerline-breadcrumb-enable nil)
-  ; Make sure that we always call lsp-deferred to avoid long
-  ; periods of unresponsiveness.
-  :commands (lsp lsp-deferred))
+  :defer t)
 #+END_SRC
 
 ** Programming mode
@@ -925,11 +952,11 @@ Golang uses [[https://github.com/golang/tools/tree/master/gopls][gopls]] which h
     :defer t
     :ensure t)
 
-  (use-package lsp-mode
-    :defer t
-    :ensure t
-    :after go-mode
-    :hook (go-mode-hook . lsp-deferred))
+  ;; (use-package lsp-mode
+  ;;   :defer t
+  ;;   :ensure t
+  ;;   :after go-mode
+  ;;   :hook (go-mode-hook . lsp-deferred))
 
   ;; Set up before-save hooks to format buffer and add/delete imports.
   ;; Make sure you don't have other gofmt/goimports hooks enabled.
@@ -950,8 +977,7 @@ To enhance the autocomplete experience we use [[https://company-mode.github.io][
   (setq company-global-modes '(not org-mode markdown-mode latex-mode))
   :hook (after-init-hook . global-company-mode))
 (use-package company-box
-  :ensure t
-  :after lsp-mode)
+  :ensure t)
 #+END_SRC
 ** Debug Adapter Protocol (DAP)
 The debug adapter protocol is the equivalent of the language server
